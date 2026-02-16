@@ -30,31 +30,69 @@ class MethodologySlide extends SlideBase {
     createBody() {
         const body = document.createElement('div');
         body.className = 'methodology-content';
+
+        const formatNumber = (value) => {
+            if (value === null || value === undefined || value === '') return '—';
+            if (typeof value === 'number' && Number.isFinite(value)) {
+                return new Intl.NumberFormat().format(value);
+            }
+            if (typeof value === 'string') {
+                const normalized = value.replace(/,/g, '').trim();
+                const asNumber = Number(normalized);
+                if (Number.isFinite(asNumber)) return new Intl.NumberFormat().format(asNumber);
+                return value;
+            }
+            return String(value);
+        };
+
+        const formatPercent = (value) => {
+            if (value === null || value === undefined || value === '') return '—';
+            if (typeof value === 'string' && value.trim().endsWith('%')) return value.trim();
+            const normalized = typeof value === 'string' ? value.replace(/,/g, '').trim() : value;
+            const asNumber = Number(normalized);
+            if (Number.isFinite(asNumber)) return `${asNumber}%`;
+            return String(value);
+        };
         
         body.innerHTML = `
             <h3>Confidentiality</h3>
-            <p class="mb-3">Pure Survey is a member of the South African Marketing Research Association (SAMRA) and abides by the ethical standards set by SAMRA, of which confidentiality is a key stipulation. All survey responses are hosted by Pure Survey. All data that is collected and reported on by Pure Survey is in line with SEACOM's data protection requirements.</p>
+            <p class="mb-3">All survey responses and scores are hosted by Pure Survey and your individual feedback will remain completely anonymous.  All data that is 
+            collected and reported on by Pure Survey is stored in a secure database, on a secure server platform, ensuring confidentiality and integrity of the data.
+            </p>
+
+            <p class="mb-3">Pure Survey is aligned with SAMRA (South African Marketing Research Association) and strives to promote and maintain professional standards in research.</p>
             
-            <h3>Surveying Methods</h3>
-            <p class="mb-3">The Employee Engagement Survey was conducted electronically via the internet and email. The survey was distributed by means of an email invitation, which contained a clickable link directing participants to the survey hosted on Pure Survey's server. There were ${this.data.uniqueResponses} unique responses completed out of the total headcount of ${this.data.totalHeadcount} which equates to a response rate of ${this.data.responseRate}%</p>
+            <h3>Distribution Details</h3>
+            <div class="kpi-grid mb-3" role="list" aria-label="Survey distribution KPIs">
+                <div class="kpi-card" role="listitem">
+                    <div class="kpi-label">Invitations</div>
+                    <div class="kpi-value">146</div><!-- TODO: Add invitations ${formatNumber(this.data.invitations)}-->
+                    <div class="kpi-subtext">Email invitations distributed</div>
+                </div>
+                <div class="kpi-card" role="listitem">
+                    <div class="kpi-label">Unique responses</div>
+                    <div class="kpi-value">${formatNumber(this.data.uniqueResponses)}</div>
+                    <div class="kpi-subtext">Responses at survey close</div>
+                </div>
+                <div class="kpi-card kpi-card--accent" role="listitem">
+                    <div class="kpi-label">Participation rate</div>
+                    <div class="kpi-value">${formatPercent(this.data.responseRate)}</div>
+                    <div class="kpi-subtext">Overall response rate</div>
+                </div>
+            </div>
 
-
-            <h3>Glossary</h3>
-            <ul class="mb-3">
-                <li>eNPS: Employee Net Promoter Score calculated from one question of "How likely are you to recommend SEACOM to friends or family?"</li>
-                <li>n: Sample size</li>
-                <li>Insufficient sample sizes: No data shown for a group of 3 or less people</li>
-            </ul>
+            <h3>Satisfaction Index (%)</h3>
+            <p class="mb-3">Statements with subsequent agreement factors, which made use of a 4 point scale. Statements were selected as the base for the Engagement Index. 
+            All responses given for the questions were converted into a percentage based 33% integers.
+            </p>
 
             <h3>Rating Scale</h3>
-            <p class="mb-3">The rating scale was translated into a percentage for ease of analysis and interpretation.</p>
             <table class="mb-3">
                 <thead>
                     <tr>
                         <th rowspan="2"></th>
                         <th>STRONGLY DISAGREE</th>
                         <th>DISAGREE</th>
-                        <th>NEUTRAL</th>
                         <th>AGREE</th>
                         <th>STRONGLY AGREE</th>
                     </tr>
@@ -66,19 +104,17 @@ class MethodologySlide extends SlideBase {
                     <td>2</td>
                     <td>3</td>
                     <td>4</td>
-                    <td>5</td>
                 </tr>
                 <tr>
                     <td>Analysis</td>
                     <td>0%</td>
-                    <td>25%</td>
-                    <td>50%</td>
-                    <td>75%</td>
+                    <td>33%</td>
+                    <td>66%</td>
                     <td>100%</td>
                 </tr>
                 </tbody>
             </table>
-            <p>The ratings from the questions are then combined into an index, segmenting employees into five (5) categories:</p>
+            <p>The responses were multiplied by each weighting and this total is then divided by the total sample. Therefore, an engagement index is calculated per statement. Each statement or dimension is then colour coded as per the groupings below.</p>
             <div class="engagement-categories">
                 <div>Actively Disengaged (< 25%)</div>
                 <div>Disengaged (>=25% AND <52%)</div>

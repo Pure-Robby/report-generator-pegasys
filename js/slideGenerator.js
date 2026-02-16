@@ -141,6 +141,11 @@ class SlideGenerator {
             responseRate: Math.round((currentData.totalResponses / 444) * 100)
         }, container, { pageNumber: slideNumber++ });
 
+        // Engagement Model (Static)
+        this.addSlide('engagement-model', {
+            title: 'Engagement Model',
+        }, container, { pageNumber: slideNumber++ });
+
         // Divider Slide - Engagement Index Scores
         this.addSlide('divider', {
             title: 'Engagement Dimension Scores',

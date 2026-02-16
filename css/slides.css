@@ -1,3 +1,5 @@
+@import './common.css';
+
 /* Slides Scroll Container */
 .slides-scroll-container {
     width: 100%;
@@ -8,7 +10,7 @@
 
 .slide {
     width: 1280px;
-    height: 720px;
+    height: 960px;
     margin: 0 auto 3rem auto;
     background: white;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -77,7 +79,7 @@
 
 /* Divider Slide */
 .slide-divider {
-    background: url('../assets/divider.jpg') center center / cover no-repeat, linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: url('../assets/divider.jpg') center center / cover no-repeat;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -86,25 +88,12 @@
     position: relative;
 }
 
-.slide-divider::before {
-    content: '';
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    border: 1px solid #0B2265;
-    width: 94%;
-    left: 3%;
-    height: 90%;
-    top: 5%;
-    border-radius: 1rem;
-}
-
 .slide-divider .divider-content {
-    color: white;
-    background: #0B2265;
-    padding: 1.75rem 3.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    position: absolute;
+    left: 6%;
+    top: 250px;
+    color: var(--primary-color);
+    font-family: var(--headings-font-family);
 }
 
 .slide-divider h1 {
@@ -196,8 +185,8 @@
 
 .slide-page-content h3 {
     font-size: 1rem;
-    color: #1e293b;
-    text-transform: uppercase;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
 }
 
 .slide-page-content p, .slide-page-content ul {
@@ -206,6 +195,158 @@
 
 .slide-page-content ul {
     padding-left: 1.5rem;
+}
+
+/* KPI Cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.kpi-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 90px;
+}
+
+.kpi-card--accent {
+    border-color: color-mix(in srgb, var(--secondary-color) 55%, var(--border-color));
+}
+
+.kpi-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.kpi-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.05;
+    color: var(--primary-color);
+    margin-top: 0.25rem;
+}
+
+.kpi-card--accent .kpi-value {
+    color: var(--secondary-color);
+}
+
+.kpi-subtext {
+    font-size: 0.8rem;
+    color: #475569;
+    margin-top: 0.35rem;
+}
+
+/* Engagement Model Slide */
+.engagement-model {
+    height: 100%;
+}
+
+.engagement-model-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.9rem;
+    height: 100%;
+}
+
+.engagement-model-col {
+    --pillar-color: var(--primary-color);
+    --connector-height: 22px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.engagement-model-header {
+    background: var(--pillar-color);
+    color: #ffffff;
+    font-weight: 700;
+    text-align: center;
+    padding: 0.8rem 0.75rem;
+    border-radius: 0;
+    font-size: 1rem;
+}
+
+.engagement-model-box {
+    border: 2px solid rgba(0, 0, 0, 0.55);
+    background: #ffffff;
+    padding: 1rem 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 320px;
+    margin: var(--connector-height) 0;
+    position: relative;
+}
+
+.engagement-model-box::before,
+.engagement-model-box::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: var(--connector-height);
+    background: var(--pillar-color);
+    z-index: 1;
+}
+
+.engagement-model-box::before {
+    top: calc(-1 * var(--connector-height));
+}
+
+.engagement-model-box::after {
+    bottom: calc(-1 * var(--connector-height));
+}
+
+.engagement-model-list {
+    list-style: none;
+    padding: 0 !important;
+    margin: 0;
+    text-align: center;
+    font-size: 1rem !important;
+    font-weight: 600;
+    color: #4b5563;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.engagement-model-desc {
+    background: var(--pillar-color);
+    color: #ffffff;
+    padding: 1.15rem 1rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    text-align: center;
+    font-weight: 600;
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.engagement-model-col--drivers {
+    --pillar-color: #f97316;
+}
+
+.engagement-model-col--enablers {
+    --pillar-color: #22c55e;
+}
+
+.engagement-model-col--commitment {
+    --pillar-color: #fbbf24;
+}
+
+.engagement-model-col--effort {
+    --pillar-color: #ef4444;
 }
 
 
@@ -245,6 +386,19 @@
 
     .chart-placeholder {
         height: 300px;
+    }
+
+    .engagement-model-box {
+        min-height: 210px;
+    }
+
+    .engagement-model-desc {
+        min-height: 150px;
+        font-size: 0.8rem;
+    }
+
+    .engagement-model-col {
+        --connector-height: 16px;
     }
 }
 
@@ -328,6 +482,15 @@
     .summary-grid {
         grid-template-columns: 1fr;
         gap: 1rem;
+    }
+
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .engagement-model-grid {
+        grid-template-columns: 1fr;
+        height: auto;
     }
 }
 

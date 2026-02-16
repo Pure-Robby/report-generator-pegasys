@@ -5,7 +5,7 @@
     display: flex;
     flex-direction: column;
     padding: 0;
-    height: 720px;
+    height: 960px;
 }
 
 /* Slide Header */
@@ -14,7 +14,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
-    border-bottom: 2px solid #0098DB;
+    border-bottom: 2px solid var(--primary-color);
     height: 80px;
     flex-shrink: 0;
     background: #f8fafc;
@@ -23,7 +23,8 @@
 .slide-page-header h1 {
     font-size: 1.75rem;
     font-weight: 600;
-    color: #0B2265;
+    color: var(--primary-color);
+    font-family: var(--headings-font-family);
     margin: 0;
     flex: 1;
 }
@@ -34,7 +35,7 @@
     padding: 1.5rem;
     overflow: hidden;
     min-height: 0;
-    max-height: calc(720px - 80px - 50px);
+    max-height: calc(960px - 80px - 50px);
 }
 
 /* Slide Footer */
