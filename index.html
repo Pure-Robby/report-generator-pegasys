@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Generator - Generate PPT or PDF Reports from Excel</title>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div id="toast-container"></div>
+    <div id="loading-overlay" class="loading-overlay hidden">
+      <div class="spinner"></div>
+      <p>Processing your file...</p>
+    </div>
+
+    <div class="container">
+      <header>
+        <h1>Report Generator</h1>
+        <p>Upload your survey data to generate a PPT or PDF report</p>
+      </header>
+
+      <main>
+        <form id="upload-form" class="upload-form">
+          <div class="form-group">
+            <label for="survey-name">Survey Name *</label>
+            <input
+              type="text"
+              id="survey-name"
+              name="surveyName"
+              required
+              placeholder="e.g., Customer Satisfaction Survey 2026" />
+          </div>
+
+          <div class="form-group">
+            <label for="report-name">Report Name *</label>
+            <input
+              type="text"
+              id="report-name"
+              name="reportName"
+              required
+              placeholder="e.g., Q4 Analysis Report" />
+          </div>
+
+          <div class="form-group">
+            <label for="excel-file"
+              >Excel File *
+              <small class="text-muted"
+                >(Supports .xlsx and .xls formats)</small
+              ></label
+            >
+            <div class="file-input-wrapper">
+              <input
+                type="file"
+                id="excel-file"
+                name="excelFile"
+                accept=".xlsx,.xls"
+                required />
+              <span class="file-name">No file selected</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="upload-btn">
+            Generate Report
+          </button>
+        </form>
+      </main>
+
+      <footer>
+        <p>
+          © <span id="current-year"></span> Report Generator. All rights
+          reserved.
+        </p>
+        <p>Version: 1 (Pegasys)</p>
+      </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/upload.js"></script>
+    <script>
+      document.getElementById('current-year').textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+</html>

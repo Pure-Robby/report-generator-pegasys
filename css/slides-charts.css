@@ -1,0 +1,187 @@
+/* ========================================
+   CHART SLIDES
+   Styles for bar charts and other visualizations
+   ======================================== */
+
+/* Chart Layout */
+.slide-chart .slide-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  flex: 1;
+}
+
+/* Chart Container - Fixed 16:9 ratio height */
+.chart-container {
+  width: 100%;
+  max-width: 1150px;
+  height: 430px;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.chart-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Chart Legend */
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chart-legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+}
+
+.chart-legend-color.blue {
+  background-color: #4472c4;
+}
+
+.chart-legend-color.black {
+  background-color: #000000;
+}
+
+/* Chart Title and Subtitle */
+.chart-title-container {
+  text-align: left;
+  margin-bottom: 1rem;
+  padding: 0 2rem;
+}
+
+.chart-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+/* ========================================
+   SATISFACTION SLIDE STYLES
+   ======================================== */
+.satisfaction-content {
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.satisfaction-question {
+  font-size: 0.95rem;
+  color: #1e293b;
+  /* margin-bottom:0.5rem; */
+  font-weight: 500;
+}
+
+/* Stacked Bar Chart Container */
+.stacked-chart-container {
+  width: 100%;
+  max-width: 1100px;
+  height: 150px;
+  position: relative;
+  margin: 0 auto 0.75rem auto;
+}
+
+.satisfaction-chart-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Satisfaction Table */
+.satisfaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.satisfaction-table thead {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+/*Satisfaction Table*/
+.satisfaction-table th:first-of-type,
+.satisfaction-table td:first-of-type {
+  width: 40%;
+}
+
+.satisfaction-table td:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+
+.satisfaction-table tbody tr:first-child {
+  background-color: #e0e7ff;
+  font-weight: 600;
+}
+
+/* ========================================
+   HORIZONTAL BAR CHART SLIDE STYLES
+   ======================================== */
+.horizontal-barchart-content {
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.horizontal-chart-container {
+  width: 100%;
+  max-width: 1100px;
+  height: 500px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.horizontal-chart-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ========================================
+   RESPONSIVE - Maintain 16:9 Ratio
+   ======================================== */
+@media (max-width: 1400px) {
+  .chart-container {
+    height: 350px;
+  }
+
+  .stacked-chart-container {
+    height: 120px;
+  }
+
+  .satisfaction-table {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .chart-container {
+    height: 280px;
+  }
+
+  .stacked-chart-container {
+    height: 100px;
+  }
+
+  .horizontal-chart-container {
+    height: 400px;
+  }
+
+  .satisfaction-table {
+    font-size: 0.7rem;
+  }
+
+  .satisfaction-table th,
+  .satisfaction-table td {
+    padding: 0.4rem 0.3rem;
+  }
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Report Preview</title>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/slides.css" />
+    <link rel="stylesheet" href="css/slides-layout.css" />
+    <link rel="stylesheet" href="css/slides-charts.css" />
+    <link rel="stylesheet" href="css/slides-tables.css" />
+  </head>
+  <body>
+    <div id="toast-container"></div>
+    <div id="loading-overlay" class="loading-overlay hidden">
+      <div class="overlay-panel">
+        <div class="spinner"></div>
+
+        <p id="loading-text">Processing your file...</p>
+
+        <div class="progress">
+          <div id="export-progress" class="progress-bar"></div>
+        </div>
+
+        <div class="thumb-wrap">
+          <img id="export-thumb" alt="Current slide preview" />
+        </div>
+
+        <button id="cancel-export" class="btn btn-sm btn-danger">
+          Cancel Export
+        </button>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <header class="preview-header">
+        <div>
+          <h1
+            id="preview-title"
+            contenteditable="true"
+            class="editable-title"
+            title="Click to edit report name">
+            Report Preview
+          </h1>
+          <span class="edit-icon"
+            ><i class="text-primary fs-4">&#x270E;</i> Edit Title</span
+          >
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-secondary" id="back-btn">
+            ← Back to Upload
+          </button>
+          <button class="btn btn-primary" id="export-ppt-btn">
+            Export to PowerPoint
+          </button>
+          <button class="btn btn-primary" id="export-pdf-btn">
+            Export to PDF
+          </button>
+        </div>
+      </header>
+
+      <div class="slides-scroll-container" id="slide-container">
+        <!-- Slides will be dynamically generated here -->
+      </div>
+    </div>
+    
+    <!-- Page Navigation -->
+    <div class="page-navigation" id="page-navigation">
+      <input type="number" class="page-nav-input" id="page-nav-input" min="1" value="1" aria-label="Current page">
+      <span class="page-nav-total" id="page-nav-total">1</span>
+      <button class="page-nav-btn page-nav-up" id="page-nav-up" aria-label="Previous page">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 4L3 9L4.41 10.41L8 6.83L11.59 10.41L13 9L8 4Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <button class="page-nav-btn page-nav-down" id="page-nav-down" aria-label="Next page">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 12L3 7L4.41 5.59L8 9.17L11.59 5.59L13 7L8 12Z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+    
+    <a href="#" class="back-to-top">Back to Top</a>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const backToTop = document.querySelector('.back-to-top');
+
+        // Show/hide after scrolling 300px
+        window.addEventListener('scroll', function () {
+          if (window.scrollY > 900) {
+            backToTop.style.display = 'block';
+          } else {
+            backToTop.style.display = 'none';
+          }
+        });
+
+        // Scroll to top
+        backToTop.addEventListener('click', function (e) {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Utilities -->
+    <script src="js/utils/dataCalculations.js"></script>
+    <script src="js/utils/colorMapper.js"></script>
+    <script src="js/utils/LegendComponent.js"></script>
+
+    <!-- Shared Slide Components -->
+    <script src="js/slides/components/RatingScale.js"></script>
+
+    <!-- Slide Classes -->
+    <script src="js/slides/SlideBase.js"></script>
+    <script src="js/slides/SlideFactory.js"></script>
+    <script src="js/slides/CoverSlide.js"></script>
+    <script src="js/slides/MethodologySlide.js"></script>
+    <script src="js/slides/DividerSlide.js"></script>
+    <script src="js/slides/SatisfactionSlide.js"></script>
+    <script src="js/slides/QuestionsSlide.js"></script>
+    <script src="js/slides/BarChartSlide.js"></script>
+    <script src="js/slides/HorizontalBarChartSlide.js"></script>
+    <script src="js/slides/HeatMapSlide.js"></script>
+    <script src="js/slides/RetentionIntroSlide.js"></script>
+    <script src="js/slides/ENPSIntroSlide.js"></script>
+    <script src="js/slides/ENPSSlide.js"></script>
+    <script src="js/slides/CommentsSlide.js"></script>
+    <script src="js/slides/RiskMatrixSlide.js"></script>
+    <script src="js/slides/TopBottomStatementsSlide.js"></script>
+    <script src="js/slides/TenPointScaleChartSlide.js"></script>
+
+    <!-- Core Application -->
+    <script src="js/parser.js"></script>
+    <script src="js/slideGenerator.js"></script>
+    <script src="js/exporters.js"></script>
+  </body>
+</html>
