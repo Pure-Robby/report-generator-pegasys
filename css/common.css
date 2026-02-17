@@ -7,13 +7,31 @@
     --warning-color: #f59e0b;
     --bg-color: #f8fafc;
     --text-color: #1e293b;
+    --text-muted-color: #64748b;
+    --text-subtle-color: #94a3b8;
     --border-color: #e2e8f0;
+    --surface-color: #ffffff;
+    --surface-muted-color: #f8fafc;
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
       0 4px 6px -4px rgb(0 0 0 / 0.1);
       --primary-font-family: 'Open Sans', -apple-system, BlinkMacSystemFont,
       'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       --headings-font-family: 'Merriweather', serif;
+
+    /* Themeable slide imagery (safe defaults for css/ consumers) */
+    --slide-cover-image: url("../assets/cover image.png");
+    --slide-divider-image: url("../assets/divider.jpg");
+
+    /* Themeable chart series colors */
+    --chart-series-primary: #4472C4;
+    --chart-series-secondary: #000000;
+
+    /* Themeable table / heatmap accents */
+    --table-header-bg: #1e293b;
+    --table-header-text: #ffffff;
+    --table-accent-row-bg: #e0e7ff;
+    --heatmap-highlight: #3b82f6;
   }
   
   * {

@@ -4,14 +4,34 @@ class UploadManager {
         this.form = document.getElementById('upload-form');
         this.fileInput = document.getElementById('excel-file');
         this.uploadBtn = document.getElementById('upload-btn');
+        this.themeSelect = document.getElementById('theme');
         this.isProcessing = false;
         
         this.init();
     }
 
     init() {
+        this.populateThemeOptions();
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.fileInput.addEventListener('change', (e) => this.handleFileChange(e));
+    }
+
+    populateThemeOptions() {
+        if (!this.themeSelect) return;
+
+        const themes = (window.ThemeRegistry && typeof window.ThemeRegistry.listThemes === 'function')
+            ? window.ThemeRegistry.listThemes()
+            : [{ id: 'default', name: 'Default' }];
+
+        const defaultId = (window.ThemeRegistry && window.ThemeRegistry.defaultThemeId)
+            ? window.ThemeRegistry.defaultThemeId
+            : (themes[0] ? themes[0].id : 'default');
+
+        this.themeSelect.innerHTML = themes
+            .map(t => `<option value="${t.id}">${t.name}</option>`)
+            .join('');
+
+        this.themeSelect.value = defaultId;
     }
 
     handleFileChange(e) {
@@ -35,9 +55,10 @@ class UploadManager {
 
         const surveyName = document.getElementById('survey-name').value.trim();
         const reportName = document.getElementById('report-name').value.trim();
+        const theme = this.themeSelect ? this.themeSelect.value : null;
         const file = this.fileInput.files[0];
 
-        if (!surveyName || !reportName || !file) {
+        if (!surveyName || !reportName || !file || !theme) {
             showToast('Please fill in all required fields', 'error');
             return;
         }
@@ -56,6 +77,7 @@ class UploadManager {
             const reportData = {
                 surveyName,
                 reportName,
+                theme,
                 data,
                 timestamp: new Date().toISOString()
             };

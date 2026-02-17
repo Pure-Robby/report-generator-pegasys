@@ -6,6 +6,10 @@ class SlideGenerator {
 
         this.slideInstances = [];
         this.totalSlideCount = 0;
+        this.defaultSlideOptions =
+            window.ThemeManager && typeof window.ThemeManager.getDefaultSlideOptions === 'function'
+                ? window.ThemeManager.getDefaultSlideOptions(this.reportData.theme)
+                : {};
         
         this.init();
     }
@@ -659,20 +663,21 @@ class SlideGenerator {
      */
     addSlide(type, data, container, options = {}) {
         try {
-            const slideInstance = SlideFactory.createSlide(type, data, options);
+            const mergedOptions = { ...this.defaultSlideOptions, ...options };
+            const slideInstance = SlideFactory.createSlide(type, data, mergedOptions);
             const slideElement = slideInstance.getSlideElement();
             
             // Add unique ID based on pageNumber if available
-            if (options.pageNumber) {
-                slideElement.id = `slide-${options.pageNumber}`;
+            if (mergedOptions.pageNumber) {
+                slideElement.id = `slide-${mergedOptions.pageNumber}`;
             }
             
             container.appendChild(slideElement);
             this.slideInstances.push(slideInstance);
             
             // Update total slide count
-            if (options.pageNumber) {
-                this.totalSlideCount = Math.max(this.totalSlideCount, options.pageNumber);
+            if (mergedOptions.pageNumber) {
+                this.totalSlideCount = Math.max(this.totalSlideCount, mergedOptions.pageNumber);
             }
         } catch (error) {
             console.error(`Error creating ${type} slide:`, error);
