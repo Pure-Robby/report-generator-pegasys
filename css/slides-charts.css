@@ -48,11 +48,11 @@
 }
 
 .chart-legend-color.blue {
-  background-color: #4472c4;
+  background-color: var(--chart-series-primary);
 }
 
 .chart-legend-color.black {
-  background-color: #000000;
+  background-color: var(--chart-series-secondary);
 }
 
 /* Chart Title and Subtitle */
@@ -64,7 +64,7 @@
 
 .chart-subtitle {
   font-size: 0.95rem;
-  color: #64748b;
+  color: var(--text-muted-color);
   margin-top: 0.5rem;
 }
 
@@ -78,7 +78,7 @@
 
 .satisfaction-question {
   font-size: 0.95rem;
-  color: #1e293b;
+  color: var(--text-color);
   /* margin-bottom:0.5rem; */
   font-weight: 500;
 }
@@ -95,34 +95,6 @@
 .satisfaction-chart-canvas {
   width: 100% !important;
   height: 100% !important;
-}
-
-/* Satisfaction Table */
-.satisfaction-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-}
-
-.satisfaction-table thead {
-  background-color: #1e293b;
-  color: #ffffff;
-}
-
-/*Satisfaction Table*/
-.satisfaction-table th:first-of-type,
-.satisfaction-table td:first-of-type {
-  width: 40%;
-}
-
-.satisfaction-table td:first-child {
-  text-align: left;
-  font-weight: 500;
-}
-
-.satisfaction-table tbody tr:first-child {
-  background-color: #e0e7ff;
-  font-weight: 600;
 }
 
 /* ========================================

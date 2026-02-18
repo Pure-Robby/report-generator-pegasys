@@ -16,7 +16,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
     overflow: hidden;
-    font-family: 'Open Sans', sans-serif;
+    font-family: var(--primary-font-family);
     display: flex;
     flex-direction: column;
 }
@@ -31,7 +31,10 @@
     max-width: 450px;
 }
 .slide-title {
-    background: url('../assets/cover image.png') center center / cover no-repeat;
+    background-image: var(--slide-cover-image);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
     color: white;
     padding: 4.5rem;
     display: flex;
@@ -79,7 +82,10 @@
 
 /* Divider Slide */
 .slide-divider {
-    background: url('../assets/divider.jpg') center center / cover no-repeat;
+    background-image: var(--slide-divider-image);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -109,14 +115,14 @@
 
 /* Content Slides - Legacy structure (used by SlideBase) */
 .slide-header {
-    border-bottom: 4px solid #667eea;
+    border-bottom: 4px solid var(--secondary-color);
     padding-bottom: 1rem;
     margin-bottom: 2rem;
 }
 
 .slide-header h2 {
     font-size: 2.5rem;
-    color: #1e293b;
+    color: var(--text-color);
 }
 
 .slide-body {
@@ -155,7 +161,7 @@
 }
 
 .data-table thead {
-    background: #667eea;
+    background: var(--chart-series-primary);
     color: white;
 }
 
@@ -163,23 +169,23 @@
 .data-table td {
     padding: 1rem;
     text-align: left;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .data-table tbody tr:hover {
-    background: #f8fafc;
+    background: var(--surface-muted-color);
 }
 
 /* Chart Placeholder */
 .chart-placeholder {
-    background: #f8fafc;
-    border: 2px dashed #cbd5e1;
+    background: var(--surface-muted-color);
+    border: 2px dashed var(--border-color);
     border-radius: 12px;
     height: 400px;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #64748b;
+    color: var(--text-muted-color);
     font-size: 1.5rem;
 }
 
@@ -205,7 +211,7 @@
 }
 
 .kpi-card {
-    background: #ffffff;
+    background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 0.75rem 0.9rem;
@@ -223,7 +229,7 @@
 .kpi-label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-muted-color);
 }
 
 .kpi-value {
@@ -240,7 +246,7 @@
 
 .kpi-subtext {
     font-size: 0.8rem;
-    color: #475569;
+    color: var(--text-muted-color);
     margin-top: 0.35rem;
 }
 
