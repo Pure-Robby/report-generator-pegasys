@@ -9,8 +9,6 @@
 }
 
 .slide {
-    width: 1280px;
-    height: 960px;
     margin: 0 auto 3rem auto;
     background: white;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -356,15 +354,13 @@
 }
 
 
-/* Responsive Scaling */
+/* Responsive Scaling (dimensions from slides-size.css; no breakpoint overrides) */
 @media (max-width: 1400px) {
     .slides-scroll-container {
         padding: 1.5rem;
     }
 
     .slide {
-        width: 960px;
-        height: 540px;
         margin-bottom: 2.5rem;
     }
 
@@ -391,11 +387,11 @@
     }
 
     .chart-placeholder {
-        height: 300px;
+        height: calc(var(--slide-height, 720px) * 0.42);
     }
 
     .engagement-model-box {
-        min-height: 210px;
+        min-height: calc(var(--slide-height, 720px) * 0.29);
     }
 
     .engagement-model-desc {
@@ -414,8 +410,6 @@
     }
 
     .slide {
-        width: 800px;
-        height: 450px;
         margin-bottom: 2rem;
     }
 
@@ -450,7 +444,7 @@
     }
 
     .chart-placeholder {
-        height: 250px;
+        height: calc(var(--slide-height, 720px) * 0.35);
         font-size: 1.25rem;
     }
 }
@@ -461,8 +455,6 @@
     }
 
     .slide {
-        width: 640px;
-        height: 360px;
         margin-bottom: 1.5rem;
         border-radius: 4px;
     }

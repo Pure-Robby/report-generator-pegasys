@@ -1,0 +1,17 @@
+/**
+ * Slide dimensions - single source of truth.
+ * --slide-width and --slide-height are set by ThemeManager.applySlideSize() from reportData.slideSize.
+ * Fallbacks for 16:9 when vars not yet set.
+ */
+.slide {
+    width: var(--slide-width, 1280px);
+    height: var(--slide-height, 720px);
+}
+
+.slide-standard {
+    height: var(--slide-height, 720px);
+}
+
+.slide-page-content {
+    max-height: calc(var(--slide-height, 720px) - 80px - 50px);
+}

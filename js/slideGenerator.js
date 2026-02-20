@@ -6,10 +6,15 @@ class SlideGenerator {
 
         this.slideInstances = [];
         this.totalSlideCount = 0;
-        this.defaultSlideOptions =
-            window.ThemeManager && typeof window.ThemeManager.getDefaultSlideOptions === 'function'
-                ? window.ThemeManager.getDefaultSlideOptions(this.reportData.theme)
-                : {};
+        const tm = window.ThemeManager;
+        const themeOptions = (tm && typeof tm.getDefaultSlideOptions === 'function')
+            ? tm.getDefaultSlideOptions(this.reportData.theme)
+            : {};
+        const slideSize = this.reportData.slideSize === '4x3' ? '4x3' : '16x9';
+        const dims = (tm && typeof tm.getSlideDimensions === 'function')
+            ? tm.getSlideDimensions(slideSize)
+            : { width: 1280, height: slideSize === '4x3' ? 960 : 720 };
+        this.defaultSlideOptions = { ...themeOptions, ...dims };
         
         this.init();
     }
@@ -131,10 +136,18 @@ class SlideGenerator {
         }
 
         // Cover Slide
+        const theme = (window.ThemeRegistry && window.ThemeRegistry.getTheme && this.reportData.theme)
+            ? window.ThemeRegistry.getTheme(this.reportData.theme) : null;
+        const coverSurveyName = (theme && theme.cover && theme.cover.surveyName)
+            ? theme.cover.surveyName
+            : this.reportData.surveyName;
+        const coverDate = (theme && theme.cover && theme.cover.date)
+            ? theme.cover.date
+            : DataParser.getCurrentDate();
         this.addSlide('cover', {
-            surveyName: this.reportData.surveyName,
+            surveyName: coverSurveyName,
             reportName: this.reportData.reportName,
-            date: DataParser.getCurrentDate()
+            date: coverDate
         }, container, { pageNumber: slideNumber++ }); 
 
         // Report Methodology

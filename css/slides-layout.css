@@ -1,11 +1,10 @@
 /* Standardized slide layout with header, footer, logo, and page numbers */
 
-/* Standard Content Slide Layout */
+/* Standard Content Slide Layout - height from slides-size.css */
 .slide-standard {
     display: flex;
     flex-direction: column;
     padding: 0;
-    height: 960px;
 }
 
 /* Slide Header */
@@ -29,13 +28,12 @@
     flex: 1;
 }
 
-/* Slide Content Area */
+/* Slide Content Area - max-height from slides-size.css */
 .slide-page-content {
     flex: 1;
     padding: 1.5rem;
     overflow: hidden;
     min-height: 0;
-    max-height: calc(960px - 80px - 50px);
 }
 
 /* Slide Footer */
@@ -104,109 +102,5 @@
     justify-content: flex-start;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1400px) {
-    .slide-standard {
-        height: 540px;
-    }
-
-    .slide-page-header {
-        padding: 0.75rem 1.25rem;
-        height: 60px;
-    }
-    
-    .slide-page-header h1 {
-        font-size: 1.5rem;
-    }
-    
-    .slide-page-logo {
-        height: 40px;
-    }
-    
-    .slide-page-content {
-        padding: 1.25rem;
-        max-height: calc(540px - 60px - 40px);
-    }
-    
-    .slide-page-footer {
-        padding: 0.5rem 1.25rem;
-        height: 40px;
-        font-size: 0.7rem;
-    }
-}
-
-@media (max-width: 1024px) {
-    .slide-standard {
-        height: 450px;
-    }
-
-    .slide-page-header {
-        padding: 0.5rem 1rem;
-        height: 50px;
-    }
-    
-    .slide-page-header h1 {
-        font-size: 1.25rem;
-    }
-    
-    .slide-page-logo {
-        height: 35px;
-    }
-    
-    .slide-page-logo-placeholder {
-        height: 35px;
-        width: 120px;
-        font-size: 1rem;
-    }
-    
-    .slide-page-content {
-        padding: 1rem;
-        max-height: calc(450px - 50px - 35px);
-    }
-    
-    .slide-page-footer {
-        padding: 0.5rem 1rem;
-        height: 35px;
-        font-size: 0.65rem;
-    }
-    
-    .slide-standard .slide-header h2 {
-        font-size: 1.5rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .slide-standard {
-        height: 360px;
-    }
-
-    .slide-page-header {
-        padding: 0.5rem 0.75rem;
-        height: 40px;
-        flex-wrap: wrap;
-    }
-    
-    .slide-page-header h1 {
-        font-size: 1rem;
-        width: 100%;
-        margin-bottom: 0.5rem;
-    }
-    
-    .slide-page-logo {
-        height: 30px;
-    }
-    
-    .slide-page-content {
-        padding: 0.75rem;
-        max-height: calc(360px - 40px - 30px);
-    }
-    
-    .slide-page-footer {
-        padding: 0.5rem 0.75rem;
-        height: 30px;
-        font-size: 0.6rem;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-}
+/* Dimension overrides removed; single size from slides-size.css */
 

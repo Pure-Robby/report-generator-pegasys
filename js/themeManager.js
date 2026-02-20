@@ -1,11 +1,42 @@
 /**
  * Theme manager (runtime).
- * - Reads reportData.theme from sessionStorage
+ * - Reads reportData.theme and reportData.slideSize from sessionStorage
  * - Applies CSS variables to :root
  * - Updates ColorMapper chart palette (JS-driven charts)
- * - Exposes default slide options (logoPath)
+ * - Exposes default slide options (logoPath) and getSlideDimensions(slideSize)
  */
 (function () {
+  const SLIDE_DIMENSIONS = {
+    '16x9': { width: 1280, height: 720 },
+    '4x3': { width: 1280, height: 960 }
+  };
+
+  const getSlideDimensions = (slideSize) => {
+    const dims = SLIDE_DIMENSIONS[slideSize];
+    return dims || SLIDE_DIMENSIONS['16x9'];
+  };
+
+  const getReportSlideSize = () => {
+    try {
+      const raw = sessionStorage.getItem('reportData');
+      if (!raw) return '16x9';
+      const parsed = JSON.parse(raw);
+      const size = parsed && parsed.slideSize;
+      return size === '4x3' ? '4x3' : '16x9';
+    } catch {
+      return '16x9';
+    }
+  };
+
+  const applySlideSize = () => {
+    const slideSize = getReportSlideSize();
+    const { width, height } = getSlideDimensions(slideSize);
+    document.documentElement.style.setProperty('--slide-width', `${width}px`);
+    document.documentElement.style.setProperty('--slide-height', `${height}px`);
+    document.body.classList.remove('slide-size-16x9', 'slide-size-4x3');
+    document.body.classList.add(`slide-size-${slideSize}`);
+  };
+
   const applyCssVar = (name, value) => {
     if (value === null || value === undefined || value === '') return;
     document.documentElement.style.setProperty(name, value);
@@ -83,12 +114,16 @@
 
   const activeThemeId = getReportThemeId();
   const activeTheme = applyTheme(activeThemeId);
+  applySlideSize();
 
   window.ThemeManager = {
     getActiveThemeId: () => activeThemeId,
     getActiveTheme: () => activeTheme,
     applyTheme,
-    getDefaultSlideOptions
+    getDefaultSlideOptions,
+    getSlideDimensions,
+    getReportSlideSize,
+    applySlideSize
   };
 })();
 

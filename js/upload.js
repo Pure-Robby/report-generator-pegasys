@@ -12,6 +12,10 @@ class UploadManager {
 
     init() {
         this.populateThemeOptions();
+        this.updateSurveyNameVisibility();
+        if (this.themeSelect) {
+            this.themeSelect.addEventListener('change', () => this.updateSurveyNameVisibility());
+        }
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.fileInput.addEventListener('change', (e) => this.handleFileChange(e));
     }
@@ -34,6 +38,23 @@ class UploadManager {
         this.themeSelect.value = defaultId;
     }
 
+    updateSurveyNameVisibility() {
+        const themeId = this.themeSelect ? this.themeSelect.value : null;
+        const theme = (themeId && window.ThemeRegistry && window.ThemeRegistry.getTheme)
+            ? window.ThemeRegistry.getTheme(themeId) : null;
+        const surveyNameInput = document.getElementById('survey-name');
+        if (!surveyNameInput) return;
+
+        const coverSurveyName = theme && theme.cover && theme.cover.surveyName;
+        if (coverSurveyName) {
+            surveyNameInput.value = coverSurveyName;
+            surveyNameInput.removeAttribute('required');
+        } else {
+            surveyNameInput.value = '';
+            surveyNameInput.setAttribute('required', '');
+        }
+    }
+
     handleFileChange(e) {
         const file = e.target.files[0];
         if (file) {
@@ -53,15 +74,26 @@ class UploadManager {
             return;
         }
 
-        const surveyName = document.getElementById('survey-name').value.trim();
+        const themeId = this.themeSelect ? this.themeSelect.value : null;
+        const theme = (themeId && window.ThemeRegistry && window.ThemeRegistry.getTheme)
+            ? window.ThemeRegistry.getTheme(themeId) : null;
         const reportName = document.getElementById('report-name').value.trim();
-        const theme = this.themeSelect ? this.themeSelect.value : null;
         const file = this.fileInput.files[0];
 
-        if (!surveyName || !reportName || !file || !theme) {
+        const surveyNameInput = document.getElementById('survey-name');
+        const surveyName = (surveyNameInput ? surveyNameInput.value.trim() : '') ||
+            (theme && theme.cover && theme.cover.surveyName) || '';
+
+        if (!themeId || !reportName || !file) {
             showToast('Please fill in all required fields', 'error');
             return;
         }
+        if (!(theme && theme.cover && theme.cover.surveyName) && !surveyName) {
+            showToast('Please fill in all required fields', 'error');
+            return;
+        }
+
+        const slideSize = (theme && theme.slideSize === '4x3') ? '4x3' : '16x9';
 
         if (!this.validateFile(file)) {
             return;
@@ -77,7 +109,8 @@ class UploadManager {
             const reportData = {
                 surveyName,
                 reportName,
-                theme,
+                theme: themeId,
+                slideSize,
                 data,
                 timestamp: new Date().toISOString()
             };

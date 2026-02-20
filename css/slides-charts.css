@@ -12,11 +12,11 @@
   flex: 1;
 }
 
-/* Chart Container - Fixed 16:9 ratio height */
+/* Chart Container - height proportional to slide */
 .chart-container {
   width: 100%;
   max-width: 1150px;
-  height: 430px;
+  height: calc(var(--slide-height, 720px) * 0.6);
   position: relative;
   padding-bottom: 1rem;
 }
@@ -87,7 +87,7 @@
 .stacked-chart-container {
   width: 100%;
   max-width: 1100px;
-  height: 150px;
+  height: calc(var(--slide-height, 720px) * 0.21);
   position: relative;
   margin: 0 auto 0.75rem auto;
 }
@@ -108,7 +108,7 @@
 .horizontal-chart-container {
   width: 100%;
   max-width: 1100px;
-  height: 500px;
+  height: calc(var(--slide-height, 720px) * 0.69);
   position: relative;
   margin: 0 auto;
 }
@@ -118,42 +118,4 @@
   height: 100% !important;
 }
 
-/* ========================================
-   RESPONSIVE - Maintain 16:9 Ratio
-   ======================================== */
-@media (max-width: 1400px) {
-  .chart-container {
-    height: 350px;
-  }
-
-  .stacked-chart-container {
-    height: 120px;
-  }
-
-  .satisfaction-table {
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 1024px) {
-  .chart-container {
-    height: 280px;
-  }
-
-  .stacked-chart-container {
-    height: 100px;
-  }
-
-  .horizontal-chart-container {
-    height: 400px;
-  }
-
-  .satisfaction-table {
-    font-size: 0.7rem;
-  }
-
-  .satisfaction-table th,
-  .satisfaction-table td {
-    padding: 0.4rem 0.3rem;
-  }
-}
+/* Dimension breakpoints removed; heights use var(--slide-height) above */

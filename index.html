@@ -26,12 +26,16 @@
       <main>
         <form id="upload-form" class="upload-form">
           <div class="form-group">
+            <label for="theme">Theme *</label>
+            <select id="theme" name="theme" required></select>
+          </div>
+
+          <div class="form-group" id="survey-name-group">
             <label for="survey-name">Survey Name *</label>
             <input
               type="text"
               id="survey-name"
               name="surveyName"
-              required
               placeholder="e.g., Customer Satisfaction Survey 2026" />
           </div>
 
@@ -43,11 +47,6 @@
               name="reportName"
               required
               placeholder="e.g., Q4 Analysis Report" />
-          </div>
-
-          <div class="form-group">
-            <label for="theme">Theme *</label>
-            <select id="theme" name="theme" required></select>
           </div>
 
           <div class="form-group">

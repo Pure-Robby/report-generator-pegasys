@@ -3,8 +3,18 @@
 /**
  * Capture a slide element as an image using html2canvas
  * @param {HTMLElement} slideElement - The slide DOM element to capture
+ * @param {{ width: number, height: number }} [dimensions] - Optional slide dimensions (from getSlideDimensions); used to force size during capture
  * @returns {Promise<string>} Base64 data URL of the captured image
  */
+function getCaptureDimensions(dimensions) {
+    if (dimensions && typeof dimensions.width === 'number' && typeof dimensions.height === 'number') {
+        return dimensions;
+    }
+    const tm = window.ThemeManager;
+    return (tm && typeof tm.getSlideDimensions === 'function' && typeof tm.getReportSlideSize === 'function')
+        ? tm.getSlideDimensions(tm.getReportSlideSize())
+        : { width: 1280, height: 720 };
+}
 
 function setExportGuard(enabled) {
     const handler = (e) => {
@@ -21,10 +31,12 @@ function setExportGuard(enabled) {
     }
 }
 
-async function captureSlideAsImage(slideElement) {
+async function captureSlideAsImage(slideElement, dimensions) {
     if (typeof html2canvas === 'undefined') {
         throw new Error('html2canvas library is not loaded. Please check the HTML file.');
     }
+
+    const { width: captureWidth, height: captureHeight } = getCaptureDimensions(dimensions);
 
     // Store original scroll position and styles
     const originalScrollY = window.scrollY;
@@ -37,20 +49,21 @@ async function captureSlideAsImage(slideElement) {
         contentArea: null
     };
     
-    // Ensure slide is visible and maintains full width
+    // Ensure slide is visible and maintains chosen dimensions for capture
     slideElement.style.display = 'flex';
     slideElement.style.visibility = 'visible';
     slideElement.style.opacity = '1';
-    slideElement.style.width = '1280px'; // Explicit width to prevent clipping
-    slideElement.style.maxWidth = '1280px';
-    slideElement.style.minWidth = '1280px';
+    slideElement.style.width = `${captureWidth}px`;
+    slideElement.style.maxWidth = `${captureWidth}px`;
+    slideElement.style.minWidth = `${captureWidth}px`;
+    slideElement.style.height = `${captureHeight}px`;
     
     // Get natural dimensions - verify element is actually visible
     const rect = slideElement.getBoundingClientRect();
     
     const computedStyle = window.getComputedStyle(slideElement);
-    const naturalWidth = parseInt(computedStyle.width) || 1280;
-    const naturalHeight = parseInt(computedStyle.height) || 720;
+    const naturalWidth = parseInt(computedStyle.width) || captureWidth;
+    const naturalHeight = parseInt(computedStyle.height) || captureHeight;
     
     // Pre-load all images and ensure they're accessible
     const images = slideElement.querySelectorAll('img');
@@ -425,7 +438,11 @@ async function exportToPPT(reportData, slideInstances) {
         }
 
         const pptx = new PptxGenJS();
-        pptx.layout = 'LAYOUT_16x9';
+        const slideSize = reportData.slideSize === '4x3' ? '4x3' : '16x9';
+        const dims = (window.ThemeManager && window.ThemeManager.getSlideDimensions)
+            ? window.ThemeManager.getSlideDimensions(slideSize)
+            : { width: 1280, height: slideSize === '4x3' ? 960 : 720 };
+        pptx.layout = slideSize === '4x3' ? 'LAYOUT_4x3' : 'LAYOUT_16x9';
         pptx.author = 'PPT Report Generator';
         pptx.title = reportData.reportName;
         pptx.subject = reportData.surveyName;
@@ -483,22 +500,23 @@ async function exportToPPT(reportData, slideInstances) {
             }
 
             try {
-                // Capture slide
-                const imageData = await captureSlideAsImage(slideElement);
+                // Capture slide at report's chosen dimensions
+                const imageData = await captureSlideAsImage(slideElement, dims);
 
                 // ✅ Update SINGLE thumbnail element
                 if (exportThumb) {
                     exportThumb.src = imageData;
                 }
 
-                // Add slide to PPT
+                // Add slide to PPT (inches: 16:9 = 10x5.625, 4:3 = 10x7.5)
                 const pptSlide = pptx.addSlide();
+                const pptH = slideSize === '4x3' ? 7.5 : 5.625;
                 pptSlide.addImage({
                     data: imageData,
                     x: 0,
                     y: 0,
                     w: 10,
-                    h: 5.625
+                    h: pptH
                 });
 
             } catch (slideError) {
@@ -575,6 +593,13 @@ async function exportToPDF(reportData) {
   
       const slideElements = document.querySelectorAll('.slide');
       if (!slideElements.length) throw new Error('No slides found to export.');
+
+      const pdfSlideSize = reportData.slideSize === '4x3' ? '4x3' : '16x9';
+      const pdfDims = (window.ThemeManager && window.ThemeManager.getSlideDimensions)
+        ? window.ThemeManager.getSlideDimensions(pdfSlideSize)
+        : { width: 1280, height: pdfSlideSize === '4x3' ? 960 : 720 };
+      const pageWPt = pxToPt(pdfDims.width);
+      const pageHPt = pxToPt(pdfDims.height);
   
       // Hide non-export UI
       if (header) header.style.display = 'none';
@@ -596,10 +621,6 @@ async function exportToPDF(reportData) {
       await new Promise(r => setTimeout(r, 300));
   
       // Determine page size from first slide’s rendered size
-      const rect = slideElements[0].getBoundingClientRect();
-      const pageWPt = pxToPt(rect.width);
-      const pageHPt = pxToPt(rect.height);
-  
       const pdf = new jsPDF({
         orientation: pageWPt >= pageHPt ? 'landscape' : 'portrait',
         unit: 'pt',
@@ -618,8 +639,8 @@ async function exportToPDF(reportData) {
           progressBar.style.width = `${pct}%`;
         }
   
-        // Capture slide as base64 image
-        const imageData = await captureSlideAsImage(slideElements[i]);
+        // Capture slide at report's chosen dimensions
+        const imageData = await captureSlideAsImage(slideElements[i], pdfDims);
   
         // Update overlay thumbnail
         if (exportThumb) exportThumb.src = imageData;

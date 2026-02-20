@@ -12,6 +12,11 @@
     pegasys: {
       id: 'pegasys',
       name: 'Pegasys',
+      slideSize: '16x9',
+      cover: {
+        surveyName: 'Employee Engagement Survey',
+        date: 'February 2026'
+      },
       colors: {
         primary: '#4b4b55',
         secondary: '#fa6401',
@@ -44,6 +49,11 @@
     neutral: {
       id: 'neutral',
       name: 'Neutral (Blue)',
+      slideSize: '16x9',
+      cover: {
+        surveyName: '',
+        date: ''
+      },
       colors: {
         primary: '#0f172a',
         secondary: '#2563eb',
