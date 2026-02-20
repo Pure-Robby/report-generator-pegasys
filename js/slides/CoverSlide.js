@@ -9,7 +9,9 @@ class CoverSlide extends SlideBase {
 
     render() {
         const slide = this.createSlideContainer('slide-title');
-        
+        const placement = this.data.textPlacement === 'left' ? 'left' : 'right';
+        slide.classList.add(`slide-title--${placement}`);
+
         slide.innerHTML = `
             <div class="title-content">
                 <h1 class="survey-name mb-4">${this.data.surveyName}</h1>

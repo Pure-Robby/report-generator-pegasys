@@ -15,7 +15,8 @@
       slideSize: '16x9',
       cover: {
         surveyName: 'Employee Engagement Survey',
-        date: 'February 2026'
+        date: 'February 2026',
+        textPlacement: 'right'
       },
       colors: {
         primary: '#4b4b55',
@@ -37,9 +38,9 @@
         headings: "'Merriweather', serif"
       },
       assets: {
-        logoPath: 'assets/pegasys-logo.png',
-        coverImage: 'assets/pagasys-cover-image.jpg',
-        dividerImage: 'assets/pagasys-divider.jpg'
+        logoPath: 'assets/pegasys/pegasys-logo.png',
+        coverImage: 'assets/pegasys/pagasys-cover.jpg',
+        dividerImage: 'assets/pegasys/pagasys-divider.jpg'
       },
       charts: {
         seriesPrimary: '#4472C4',
@@ -48,14 +49,15 @@
     },
     neutral: {
       id: 'neutral',
-      name: 'Neutral (Blue)',
+      name: 'Seacom',
       slideSize: '16x9',
       cover: {
         surveyName: '',
-        date: ''
+        date: '',
+        textPlacement: 'left'
       },
       colors: {
-        primary: '#0f172a',
+        primary: '#2563eb',
         secondary: '#2563eb',
         text: '#0f172a',
         textMuted: '#475569',
@@ -70,13 +72,13 @@
         heatmapHighlight: '#2563eb'
       },
       fonts: {
-        body: "Roboto, sans-serif, system-ui, -apple-system, 'Segoe UI', Arial",
-        headings: "Roboto, sans-serif, system-ui, -apple-system, 'Segoe UI', Arial"
+        body: "Poppins, sans-serif, system-ui, -apple-system, 'Segoe UI', Arial",
+        headings: "Poppins, sans-serif, system-ui, -apple-system, 'Segoe UI', Arial"
       },
       assets: {
-        logoPath: 'assets/logo.png',
-        coverImage: 'assets/cover image.png',
-        dividerImage: 'assets/divider.jpg'
+        logoPath: 'assets/seacom/seacom-logo.png',
+        coverImage: 'assets/seacom/seacom-cover.png',
+        dividerImage: 'assets/seacom/seacom-divider.jpg'
       },
       charts: {
         seriesPrimary: '#2563eb',

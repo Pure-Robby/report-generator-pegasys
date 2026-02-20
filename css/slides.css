@@ -43,6 +43,14 @@
     position: relative;
 }
 
+.slide-title--left {
+    align-items: flex-start;
+}
+
+.slide-title--right {
+    align-items: flex-end;
+}
+
 .slide-title::before {
     content: '';
     position: absolute;

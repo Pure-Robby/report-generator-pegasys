@@ -144,10 +144,14 @@ class SlideGenerator {
         const coverDate = (theme && theme.cover && theme.cover.date)
             ? theme.cover.date
             : DataParser.getCurrentDate();
+        const coverTextPlacement = (theme && theme.cover && theme.cover.textPlacement === 'left')
+            ? 'left'
+            : 'right';
         this.addSlide('cover', {
             surveyName: coverSurveyName,
             reportName: this.reportData.reportName,
-            date: coverDate
+            date: coverDate,
+            textPlacement: coverTextPlacement
         }, container, { pageNumber: slideNumber++ }); 
 
         // Report Methodology
