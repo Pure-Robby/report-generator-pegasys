@@ -1,12 +1,7 @@
 /**
  * Helper: wrap a label into multiple lines based on canvas text width
- * @param {string|string[]} label - original label
- * @param {CanvasRenderingContext2D} ctx - chart canvas context
- * @param {number} maxWidth - max width per line in pixels
- * @returns {string[]} array of lines
  */
 function wrapLabelByWidth(label, ctx, maxWidth) {
-    // If it's already an array, just return as-is
     if (Array.isArray(label)) return label;
 
     const text = String(label || '');
@@ -17,26 +12,22 @@ function wrapLabelByWidth(label, ctx, maxWidth) {
     for (let i = 1; i < words.length; i++) {
         const word = words[i];
         const testLine = currentLine + ' ' + word;
-        const metrics = ctx.measureText(testLine);
-
-        if (metrics.width <= maxWidth) {
+        if (ctx.measureText(testLine).width <= maxWidth) {
             currentLine = testLine;
         } else {
             lines.push(currentLine);
             currentLine = word;
         }
     }
-
-    if (currentLine.trim().length > 0) {
-        lines.push(currentLine);
-    }
-
+    if (currentLine.trim().length > 0) lines.push(currentLine);
     return lines;
 }
 
 /**
- * Horizontal bar chart slide for Seacom Index dimensions
- * Displays dimension name and statements with horizontal bars showing percentages
+ * Horizontal bar chart slide for dimension statement breakdowns.
+ * Supports N data series via `scores` map on each statement and `yearLabels` array.
+ * Falls back to legacy `currentScore`/`previousScore` when `scores` is absent.
+ * The first statement may be flagged `isDimensionAggregate: true` and gets a visual separator.
  */
 class HorizontalBarChartSlide extends SlideBase {
     constructor(data, options = {}) {
@@ -44,6 +35,8 @@ class HorizontalBarChartSlide extends SlideBase {
         this.validateData(['title', 'dimensionName', 'statements']);
         this.chartInstance = null;
     }
+
+    static DEFAULT_COLORS = ['#FFB800', '#FA6401', '#333333', '#999999', '#6366f1', '#10b981'];
 
     render() {
         const pageNumber = this.options.pageNumber || 1;
@@ -61,13 +54,26 @@ class HorizontalBarChartSlide extends SlideBase {
         requestAnimationFrame(() => {
             setTimeout(() => {
                 const canvas = document.getElementById(this.canvasId);
-                if (canvas) {
-                    this.initHorizontalBarChart(canvas);
-                }
+                if (canvas) this.initHorizontalBarChart(canvas);
             }, 50);
         });
 
         return slide;
+    }
+
+    getYearLabels() {
+        const yl = this.data.yearLabels;
+        if (Array.isArray(yl)) return yl;
+        if (yl && typeof yl === 'object') {
+            var labels = [yl.current];
+            if (yl.previous) labels.push(yl.previous);
+            return labels;
+        }
+        return ['Current'];
+    }
+
+    getSeriesColors() {
+        return this.data.seriesColors || HorizontalBarChartSlide.DEFAULT_COLORS;
     }
 
     createBody() {
@@ -84,9 +90,9 @@ class HorizontalBarChartSlide extends SlideBase {
         chartContainer.appendChild(canvas);
         body.appendChild(chartContainer);
 
-        if (this.data.yearLabels && this.data.yearLabels.previous) {
-            const legend = this.createLegend();
-            body.appendChild(legend);
+        const yearLabels = this.getYearLabels();
+        if (yearLabels.length > 1) {
+            body.appendChild(this.createLegend());
         }
 
         return body;
@@ -96,18 +102,16 @@ class HorizontalBarChartSlide extends SlideBase {
         const legend = document.createElement('div');
         legend.className = 'chart-legend';
 
-        const legendHTML = `
-            <div class="chart-legend-item">
-                <div class="chart-legend-color blue"></div>
-                <span>${this.data.yearLabels.current || 'Current Year'}</span>
-            </div>
-            <div class="chart-legend-item">
-                <div class="chart-legend-color black"></div>
-                <span>${this.data.yearLabels.previous || 'Previous Year'}</span>
-            </div>
-        `;
+        const yearLabels = this.getYearLabels();
+        const colors = this.getSeriesColors();
 
-        legend.innerHTML = legendHTML;
+        legend.innerHTML = yearLabels.map((label, i) =>
+            `<div class="chart-legend-item">
+                <div class="chart-legend-color" style="background:${colors[i % colors.length]}"></div>
+                <span>${label}</span>
+            </div>`
+        ).join('');
+
         return legend;
     }
 
@@ -119,145 +123,137 @@ class HorizontalBarChartSlide extends SlideBase {
         }
 
         const statements = this.data.statements || [];
-        const hasPreviousData = statements.some(s => s.previousScore !== null);
+        const yearLabels = this.getYearLabels();
+        const colors = this.getSeriesColors();
+        const usesScoresMap = statements.length > 0 && statements[0].scores;
 
-        // Original full text labels (for tooltips, exports, etc.)
-        const rawLabels = statements.map(stmt => stmt.text);
+        const rawLabels = statements.map(s => s.isDimensionAggregate ? ('● ' + s.text) : s.text);
 
-        // IMPORTANT: match the tick font so measureText is accurate
         ctx.font = '400 12px Poppins';
+        const MAX_LABEL_LINE_WIDTH = 360;
+        const labels = rawLabels.map(label => wrapLabelByWidth(label, ctx, MAX_LABEL_LINE_WIDTH));
 
-        // Max width for each line (must be <= ticks.maxWidth)
-        const MAX_LABEL_LINE_WIDTH = 360; // px, safe within ticks.maxWidth = 380
-
-        // Wrapped labels: arrays of lines for long questions
-        const labels = rawLabels.map(label =>
-            wrapLabelByWidth(label, ctx, MAX_LABEL_LINE_WIDTH)
-        );
-
-        const barThickness = this.calculateBarThickness(statements.length);
-
-        // IMPORTANT: color used to fake the 1px gap
+        const barThickness = this.calculateBarThickness(statements.length, yearLabels.length);
         const chartBgColor = (ColorMapper.COLORS.chart && ColorMapper.COLORS.chart.background) || '#ffffff';
 
-        const currentScores = statements.map(s => s.currentScore);
-        const previousScores = hasPreviousData ? statements.map(s => s.previousScore || null) : null;
-
-        const datasets = [
-            {
-                label: this.data.yearLabels?.current || 'Current Year',
-                data: currentScores,
-                backgroundColor: ColorMapper.COLORS.chart.primary,
-                borderColor: chartBgColor,
-                borderWidth: { top: 0, bottom: 2, left: 0, right: 0 }, // gap on the bottom
-                barThickness: barThickness,
-                datalabels: {
-                    align: 'end',
-                    anchor: 'end',
-                    color: '#1e293b',
-                    font: {
-                        size: 11,
-                        family: 'Poppins',
-                        weight: 600
-                    },
-                    formatter: (value) => value !== null ? value + '%' : ''
-                }
-            }
-        ];
-
-        if (hasPreviousData && previousScores) {
-            datasets.push({
-                label: this.data.yearLabels?.previous || 'Previous Year',
-                data: previousScores,
-                backgroundColor: ColorMapper.COLORS.chart.secondary,
-                borderColor: chartBgColor,
-                borderWidth: { top: 2, bottom: 0, left: 0, right: 0 }, // gap on the top
-                barThickness: barThickness,
-                datalabels: {
-                    align: 'end',
-                    anchor: 'end',
-                    color: '#1e293b',
-                    font: {
-                        size: 11,
-                        family: 'Poppins',
-                        weight: 600
-                    },
-                    formatter: (value) => value !== null ? value + '%' : ''
-                }
+        var datasets;
+        if (usesScoresMap) {
+            datasets = yearLabels.map(function (year, i) {
+                var isFirst = i === 0;
+                var isLast = i === yearLabels.length - 1;
+                return {
+                    label: year,
+                    data: statements.map(function (s) { return s.scores[year] !== undefined ? s.scores[year] : null; }),
+                    backgroundColor: colors[i % colors.length],
+                    borderColor: chartBgColor,
+                    borderWidth: { top: isFirst ? 0 : 1, bottom: isLast ? 0 : 1, left: 0, right: 0 },
+                    barThickness: barThickness,
+                    datalabels: {
+                        align: 'end',
+                        anchor: 'end',
+                        color: '#1e293b',
+                        font: { size: 11, family: 'Poppins', weight: 600 },
+                        formatter: function (value) { return value !== null ? value + '%' : ''; }
+                    }
+                };
             });
+        } else {
+            var hasPrevious = statements.some(function (s) { return s.previousScore !== null; });
+            datasets = [{
+                label: yearLabels[0] || 'Current Year',
+                data: statements.map(function (s) { return s.currentScore; }),
+                backgroundColor: colors[0],
+                borderColor: chartBgColor,
+                borderWidth: { top: 0, bottom: hasPrevious ? 1 : 0, left: 0, right: 0 },
+                barThickness: barThickness,
+                datalabels: {
+                    align: 'end', anchor: 'end', color: '#1e293b',
+                    font: { size: 11, family: 'Poppins', weight: 600 },
+                    formatter: function (value) { return value !== null ? value + '%' : ''; }
+                }
+            }];
+            if (hasPrevious) {
+                datasets.push({
+                    label: yearLabels[1] || 'Previous Year',
+                    data: statements.map(function (s) { return s.previousScore || null; }),
+                    backgroundColor: colors[1 % colors.length],
+                    borderColor: chartBgColor,
+                    borderWidth: { top: 1, bottom: 0, left: 0, right: 0 },
+                    barThickness: barThickness,
+                    datalabels: {
+                        align: 'end', anchor: 'end', color: '#1e293b',
+                        font: { size: 11, family: 'Poppins', weight: 600 },
+                        formatter: function (value) { return value !== null ? value + '%' : ''; }
+                    }
+                });
+            }
         }
 
-        const config = {
+        var aggregateIndex = -1;
+        statements.forEach(function (s, i) {
+            if (s.isDimensionAggregate) aggregateIndex = i;
+        });
+
+        var config = {
             type: 'bar',
-            data: {
-                labels: labels, // wrapped, multi-line labels
-                datasets: datasets
-            },
+            data: { labels: labels, datasets: datasets },
             options: {
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         titleFont: { size: 13, family: 'Poppins', weight: 600 },
                         bodyFont: { size: 12, family: 'Poppins' },
                         padding: 12,
                         callbacks: {
-                            title: function(tooltipItems) {
-                                const dataIndex = tooltipItems[0].dataIndex;
-                                // Use the full original question text in tooltip
-                                return rawLabels[dataIndex];
+                            title: function (tooltipItems) {
+                                return rawLabels[tooltipItems[0].dataIndex];
                             },
-                            label: function(context) {
+                            label: function (context) {
                                 return context.dataset.label + ': ' + context.parsed.x + '%';
                             }
                         }
                     }
                 },
-                layout: {
-                    padding: {
-                        left: 5,
-                        right: 5
-                    }
-                },
+                layout: { padding: { left: 5, right: 5 } },
                 scales: {
                     x: {
                         beginAtZero: true,
                         max: 100,
                         ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            },
-                            font: {
-                                family: 'Poppins',
-                                size: 12
-                            },
+                            callback: function (value) { return value + '%'; },
+                            font: { family: 'Poppins', size: 12 },
                             stepSize: 20
                         },
-                        grid: {
-                            color: ColorMapper.COLORS.chart.grid || '#e5e7eb'
-                        }
+                        grid: { color: ColorMapper.COLORS.chart.grid || '#e5e7eb' }
                     },
                     y: {
                         ticks: {
-                            font: {
-                                family: 'Poppins',
-                                size: 12,
-                                weight: 400
+                            font: function (context) {
+                                var idx = context.index;
+                                if (idx === aggregateIndex) {
+                                    return { family: 'Poppins', size: 12, weight: 700 };
+                                }
+                                return { family: 'Poppins', size: 12, weight: 400 };
                             },
                             padding: 12,
                             maxWidth: 380,
-                            // Let Chart.js use the label (string or array) as-is
-                            callback: function(value) {
+                            callback: function (value) {
                                 return this.getLabelForValue(value);
                             }
                         },
                         grid: {
-                            display: false
+                            display: true,
+                            drawTicks: false,
+                            color: function (context) {
+                                if (aggregateIndex >= 0 && context.index === aggregateIndex) {
+                                    return 'rgba(0,0,0,0.25)';
+                                }
+                                return 'transparent';
+                            }
                         }
                     }
                 }
@@ -267,26 +263,16 @@ class HorizontalBarChartSlide extends SlideBase {
         this.chartInstance = new Chart(ctx, config);
     }
 
-    /**
-     * Calculate bar thickness based on number of statements
-     * More statements = thinner bars, fewer statements = thicker bars
-     * @param {number} statementCount - Number of statements
-     * @returns {number} Bar thickness in pixels
-     */
-    calculateBarThickness(statementCount) {
-        if (statementCount <= 2) {
-            return 35;
-        } else if (statementCount <= 4) {
-            return 30;
-        } else if (statementCount <= 6) {
-            return 25;
-        } else if (statementCount <= 9) {
-            return 20;
-        } else if (statementCount <= 12) {
-            return 18;
-        } else {
-            return 15;
-        }
+    calculateBarThickness(statementCount, seriesCount) {
+        var base;
+        if (statementCount <= 2) base = 35;
+        else if (statementCount <= 4) base = 30;
+        else if (statementCount <= 6) base = 25;
+        else if (statementCount <= 9) base = 20;
+        else if (statementCount <= 12) base = 18;
+        else base = 15;
+        if (seriesCount > 2) return Math.max(8, Math.round(base * 0.6));
+        return base;
     }
 
     destroy() {

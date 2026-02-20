@@ -1,3 +1,8 @@
+/**
+ * Top & Bottom scoring statements slide.
+ * Supports multi-year columns when `yearLabels` is an array (N years).
+ * Falls back to legacy {current, previous} object format for backward compat.
+ */
 class TopBottomStatementsSlide extends SlideBase {
     constructor(data, options = {}) {
         super(data, options);
@@ -18,6 +23,17 @@ class TopBottomStatementsSlide extends SlideBase {
         return slide;
     }
 
+    getNormalizedYearLabels() {
+        const yl = this.data.yearLabels;
+        if (Array.isArray(yl)) return yl;
+        if (yl && typeof yl === 'object') {
+            var labels = [yl.current];
+            if (yl.previous) labels.push(yl.previous);
+            return labels;
+        }
+        return ['Current'];
+    }
+
     createBody() {
         const container = document.createElement('div');
         container.className = 'top-bottom-content';
@@ -25,11 +41,13 @@ class TopBottomStatementsSlide extends SlideBase {
         const sectionsWrapper = document.createElement('div');
         sectionsWrapper.className = 'top-bottom-sections';
 
+        var topCount = (this.data.topStatements || []).length;
+        var bottomCount = (this.data.bottomStatements || []).length;
         sectionsWrapper.appendChild(
-            this.createSection('Top 3 Scoring Statements', this.data.topStatements)
+            this.createSection('Top ' + topCount + ' Scoring Statements', this.data.topStatements)
         );
         sectionsWrapper.appendChild(
-            this.createSection('Bottom 3 Scoring Statements', this.data.bottomStatements)
+            this.createSection('Bottom ' + bottomCount + ' Scoring Statements', this.data.bottomStatements)
         );
 
         container.appendChild(sectionsWrapper);
@@ -61,7 +79,7 @@ class TopBottomStatementsSlide extends SlideBase {
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        statements.forEach(statement => {
+        (statements || []).forEach(statement => {
             tbody.appendChild(this.createStatementRow(statement));
         });
         table.appendChild(tbody);
@@ -72,13 +90,13 @@ class TopBottomStatementsSlide extends SlideBase {
 
     createHeaderRow() {
         const row = document.createElement('tr');
-        const headers = [
-            'Core Drivers',
-            'Question',
-            `${this.data.yearLabels.current} Score`,
-            `${this.data.yearLabels.previous || '2024'} Score`,
-            '% Shift'
-        ];
+        const yearLabels = this.getNormalizedYearLabels();
+
+        var headers = ['Core Drivers', 'Question'];
+        yearLabels.forEach(function (label) {
+            headers.push(label + ' Score');
+        });
+        headers.push('% Shift');
 
         headers.forEach(text => {
             const th = document.createElement('th');
@@ -91,6 +109,8 @@ class TopBottomStatementsSlide extends SlideBase {
 
     createStatementRow(statement) {
         const row = document.createElement('tr');
+        const yearLabels = this.getNormalizedYearLabels();
+        const hasScoresMap = statement.scores && typeof statement.scores === 'object';
 
         const driverCell = document.createElement('td');
         driverCell.className = 'text-start';
@@ -102,11 +122,16 @@ class TopBottomStatementsSlide extends SlideBase {
         questionCell.textContent = statement.question;
         row.appendChild(questionCell);
 
-        const currentCell = this.createScoreCell(statement.currentScore, statement.columnIndex);
-        row.appendChild(currentCell);
-
-        const previousCell = this.createScoreCell(statement.previousScore, statement.columnIndex);
-        row.appendChild(previousCell);
+        if (hasScoresMap) {
+            yearLabels.forEach(year => {
+                row.appendChild(this.createScoreCell(statement.scores[year], statement.columnIndex));
+            });
+        } else {
+            row.appendChild(this.createScoreCell(statement.currentScore, statement.columnIndex));
+            if (yearLabels.length > 1) {
+                row.appendChild(this.createScoreCell(statement.previousScore, statement.columnIndex));
+            }
+        }
 
         const shiftCell = document.createElement('td');
         shiftCell.className = 'shift-cell';
@@ -116,34 +141,27 @@ class TopBottomStatementsSlide extends SlideBase {
         return row;
     }
 
-    createScoreCell(score, columnIndex = null) {
+    createScoreCell(score, columnIndex) {
         const cell = document.createElement('td');
         if (score === null || score === undefined) {
-            cell.textContent = '—';
+            cell.textContent = '\u2014';
             cell.className = 'score-cell score-empty';
             return cell;
         }
 
-        // Check if this is a 10-point scale column (don't add %)
         const isTenPoint = columnIndex !== null && DataCalculations.isTenPointScaleColumn(columnIndex);
-        cell.textContent = isTenPoint ? score.toString() : `${score}%`;
-        cell.className = `score-cell ${ColorMapper.getCellClass(score, 'engagement')}`;
+        cell.textContent = isTenPoint ? score.toString() : score + '%';
+        cell.className = 'score-cell ' + ColorMapper.getCellClass(score, 'engagement');
         return cell;
     }
 
-    formatShiftValue(shiftValue, columnIndex = null) {
-        if (shiftValue === null || shiftValue === undefined) {
-            return '—';
-        }
-        if (shiftValue === 0) {
-            return '–';
-        }
-        // Check if this is a 10-point scale column (don't add %)
+    formatShiftValue(shiftValue, columnIndex) {
+        if (shiftValue === null || shiftValue === undefined) return '\u2014';
+        if (shiftValue === 0) return '\u2013';
         const isTenPoint = columnIndex !== null && DataCalculations.isTenPointScaleColumn(columnIndex);
         const sign = shiftValue > 0 ? '+' : '';
-        return isTenPoint ? `${sign}${shiftValue}` : `${sign}${shiftValue}%`;
+        return isTenPoint ? (sign + shiftValue) : (sign + shiftValue + '%');
     }
 }
 
 SlideFactory.register('top-bottom-statements', TopBottomStatementsSlide);
-

@@ -12,14 +12,15 @@
     pegasys: {
       id: 'pegasys',
       name: 'Pegasys',
-      slideSize: '16x9',
+      profileId: 'pegasys',
+      slideSize: '4x3',
       cover: {
         surveyName: 'Employee Engagement Survey',
         date: 'February 2026',
         textPlacement: 'right'
       },
       colors: {
-        primary: '#4b4b55',
+        primary: '#4b4b55', 
         secondary: '#fa6401',
         text: '#1e293b',
         textMuted: '#64748b',
@@ -39,17 +40,19 @@
       },
       assets: {
         logoPath: 'assets/pegasys/pegasys-logo.png',
-        coverImage: 'assets/pegasys/pagasys-cover.jpg',
-        dividerImage: 'assets/pegasys/pagasys-divider.jpg'
+        coverImage: 'assets/pegasys/pegasys-cover.jpg',
+        dividerImage: 'assets/pegasys/pegasys-divider.jpg'
       },
       charts: {
         seriesPrimary: '#4472C4',
-        seriesSecondary: '#000000'
+        seriesSecondary: '#000000',
+        seriesColors: ['#FFB800', '#FA6401', '#333333', '#999999']
       }
     },
-    neutral: {
-      id: 'neutral',
+    seacom: {
+      id: 'seacom',
       name: 'Seacom',
+      profileId: 'seacom',
       slideSize: '16x9',
       cover: {
         surveyName: '',
@@ -77,12 +80,13 @@
       },
       assets: {
         logoPath: 'assets/seacom/seacom-logo.png',
-        coverImage: 'assets/seacom/seacom-cover.png',
+        coverImage: 'assets/seacom/seacom-cover.jpg',
         dividerImage: 'assets/seacom/seacom-divider.jpg'
       },
       charts: {
         seriesPrimary: '#2563eb',
-        seriesSecondary: '#111827'
+        seriesSecondary: '#111827',
+        seriesColors: ['#2563eb', '#111827']
       }
     }
   };
