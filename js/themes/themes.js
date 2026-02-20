@@ -37,9 +37,9 @@
         headings: "'Merriweather', serif"
       },
       assets: {
-        logoPath: 'assets/logo.png',
-        coverImage: 'assets/cover image.png',
-        dividerImage: 'assets/divider.jpg'
+        logoPath: 'assets/pegasys-logo.png',
+        coverImage: 'assets/pagasys-cover-image.jpg',
+        dividerImage: 'assets/pagasys-divider.jpg'
       },
       charts: {
         seriesPrimary: '#4472C4',
@@ -70,8 +70,8 @@
         heatmapHighlight: '#2563eb'
       },
       fonts: {
-        body: "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif",
-        headings: "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif"
+        body: "Roboto, sans-serif, system-ui, -apple-system, 'Segoe UI', Arial",
+        headings: "Roboto, sans-serif, system-ui, -apple-system, 'Segoe UI', Arial"
       },
       assets: {
         logoPath: 'assets/logo.png',

@@ -12,12 +12,23 @@ class UploadManager {
 
     init() {
         this.populateThemeOptions();
+        this.applySelectedTheme();
         this.updateSurveyNameVisibility();
         if (this.themeSelect) {
-            this.themeSelect.addEventListener('change', () => this.updateSurveyNameVisibility());
+            this.themeSelect.addEventListener('change', () => {
+                this.applySelectedTheme();
+                this.updateSurveyNameVisibility();
+            });
         }
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.fileInput.addEventListener('change', (e) => this.handleFileChange(e));
+    }
+
+    applySelectedTheme() {
+        const themeId = this.themeSelect ? this.themeSelect.value : null;
+        if (themeId && window.ThemeManager && typeof window.ThemeManager.applyTheme === 'function') {
+            window.ThemeManager.applyTheme(themeId);
+        }
     }
 
     populateThemeOptions() {
