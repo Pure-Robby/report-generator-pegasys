@@ -53,7 +53,26 @@ class MethodologySlide extends SlideBase {
             if (Number.isFinite(asNumber)) return `${asNumber}%`;
             return String(value);
         };
-        
+
+        const theme = (typeof window !== 'undefined' && window.ThemeManager && window.ThemeManager.getActiveTheme && window.ThemeManager.getActiveTheme()) || null;
+        const defaultScale = (typeof window !== 'undefined' && window.ThemeRegistry && window.ThemeRegistry.defaultRatingScale) ? window.ThemeRegistry.defaultRatingScale : null;
+        const scale = (theme && theme.ratingScale && theme.ratingScale.items) ? theme.ratingScale : defaultScale;
+        const scaleItems = (scale && scale.items) ? scale.items : [
+            { label: 'STRONGLY DISAGREE', pct: '0%' },
+            { label: 'DISAGREE', pct: '25%' },
+            { label: 'NEUTRAL', pct: '50%' },
+            { label: 'AGREE', pct: '75%' },
+            { label: 'STRONGLY AGREE', pct: '100%' }
+        ];
+        const ratingHeaders = scaleItems.map(item => `<th>${item.label}</th>`).join('');
+        const ratingNumbers = scaleItems.map((_, i) => `<td>${i + 1}</td>`).join('');
+        const ratingPcts = scaleItems.map(item => `<td>${item.pct}</td>`).join('');
+
+        const engagementConfig = (theme && theme.engagementLegend) || (window.ThemeRegistry && window.ThemeRegistry.defaultEngagementLegend) || null;
+        const engagementLegendHtml = (typeof ColorMapper !== 'undefined' && ColorMapper.buildEngagementLegendFromConfig)
+            ? ColorMapper.buildEngagementLegendFromConfig(engagementConfig)
+            : '';
+
         body.innerHTML = `
             <h3>Confidentiality</h3>
             <p class="mb-3">All survey responses and scores are hosted by Pure Survey and your individual feedback will remain completely anonymous.  All data that is 
@@ -66,7 +85,7 @@ class MethodologySlide extends SlideBase {
             <div class="kpi-grid mb-3" role="list" aria-label="Survey distribution KPIs">
                 <div class="kpi-card" role="listitem">
                     <div class="kpi-label">Invitations</div>
-                    <div class="kpi-value">146</div><!-- TODO: Add invitations ${formatNumber(this.data.invitations)}-->
+                    <div class="kpi-value">${formatNumber(this.data.invitations)}</div>
                     <div class="kpi-subtext">Email invitations distributed</div>
                 </div>
                 <div class="kpi-card" role="listitem">
@@ -82,47 +101,27 @@ class MethodologySlide extends SlideBase {
             </div>
 
             <h3>Satisfaction Index (%)</h3>
-            <p class="mb-3">Statements with subsequent agreement factors, which made use of a 4 point scale. Statements were selected as the base for the Engagement Index. 
-            All responses given for the questions were converted into a percentage based 33% integers.
+            <p class="mb-3">Statements with subsequent agreement factors, which made use of a ${(scale && scale.points) || 5} point scale. Statements were selected as the base for the Engagement Index. 
+            All responses given for the questions were converted into a percentage based ${(scale && scale.points) === 4 ? '33%' : '25%'} integers.
             </p>
 
             <h3>Rating Scale</h3>
-            <table class="mb-3">
+            <table class="mb-3 methodology-rating-table">
                 <thead>
-                    <tr>
-                        <th rowspan="2"></th>
-                        <th>STRONGLY DISAGREE</th>
-                        <th>DISAGREE</th>
-                        <th>AGREE</th>
-                        <th>STRONGLY AGREE</th>
+                    <tr>                        
+                        ${ratingHeaders}
                     </tr>
                 </thead>
                 <tbody>
+                
                 <tr>
-                    <td></td>
-                    <td>1</td>
-                    <td>2</td>
-                    <td>3</td>
-                    <td>4</td>
-                </tr>
-                <tr>
-                    <td>Analysis</td>
-                    <td>0%</td>
-                    <td>33%</td>
-                    <td>66%</td>
-                    <td>100%</td>
+                    
+                    ${ratingPcts}
                 </tr>
                 </tbody>
             </table>
             <p>The responses were multiplied by each weighting and this total is then divided by the total sample. Therefore, an engagement index is calculated per statement. Each statement or dimension is then colour coded as per the groupings below.</p>
-            <div class="engagement-categories">
-                <div>Actively Disengaged (< 25%)</div>
-                <div>Disengaged (>=25% AND <52%)</div>
-                <div>Ambivalent (>=52% AND <65%)</div>
-                <div>Engaged (>=65% AND <75%)</div>
-                <div>Actively Engaged (>=75%)</div>
-            </div>
-
+            <div class="engagement-categories">${engagementLegendHtml}</div>
         `;
         
         return body;

@@ -103,6 +103,21 @@
 
   const SIGNIFICANT_CHANGE_THRESHOLD = 5;
 
+  /** Tenure breakdown order (shortest to longest). Used to sort heatmap rows by tenure. */
+  const TENURE_ORDER = ['<1', '1 - 3 years', '4 - 5 years', '6 - 10 years', '>10 years'];
+
+  function getTenureSortIndex(label) {
+    var s = String(label || '').trim().replace(/\s*-\s*/g, '-');
+    var i = TENURE_ORDER.indexOf(s);
+    if (i !== -1) return i;
+    if (/^<1\b/i.test(s)) return 0;
+    if (/^1-3/i.test(s)) return 1;
+    if (/^4-5/i.test(s)) return 2;
+    if (/^6-10/i.test(s)) return 3;
+    if (/^>10/i.test(s)) return 4;
+    return TENURE_ORDER.length;
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   function averageColumn(rows, colIndex) {
@@ -198,9 +213,17 @@
     const currentGroups = groupRowsByColumn(current.rows, breakdownCol);
     const previousGroups = previous ? groupRowsByColumn(previous.rows, breakdownCol) : {};
 
-    const breakdownRows = Object.keys(currentGroups).sort().map(key =>
-      buildRow(key, currentGroups[key], previousGroups[key] || null, false)
-    );
+    var keys = Object.keys(currentGroups);
+    if (breakdownType === 'tenure') {
+      keys = keys.slice().sort(function (a, b) {
+        return getTenureSortIndex(a) - getTenureSortIndex(b);
+      });
+    } else {
+      keys.sort();
+    }
+    const breakdownRows = keys.map(function (key) {
+      return buildRow(key, currentGroups[key], previousGroups[key] || null, false);
+    });
 
     return {
       columnHeaders: heatmapDims.map(d => d.name),
@@ -291,6 +314,7 @@
   function paginateQuestions(excelData) {
     const allDimensions = DIMENSIONS.map(dim => ({
       name: dim.name,
+      group: dim.group,
       questions: dim.questionCols
         .map(colIdx => cleanQuestionText(excelData.current.questionHeaders[colIdx]))
         .filter(Boolean)
@@ -388,6 +412,42 @@
     if (!str) return 0;
     var len = str.toString().length;
     return Math.max(1, Math.ceil(len / COMMENT_CHARS_PER_LINE));
+  }
+
+  function calculateBrandAffinityUgrData(excelData) {
+    var current = excelData.current;
+    var rows = current.rows || [];
+    var headers = current.questionHeaders || [];
+    var n = rows.length;
+    if (n === 0) return null;
+
+    function countSelected(rows, col) {
+      return rows.filter(function (r) {
+        var v = r[col];
+        return v !== null && v !== undefined && v !== '' && String(v).trim() !== '';
+      }).length;
+    }
+
+    function buildUgrSection(questionCol, optionCols) {
+      var question = (headers[questionCol] || '').toString().trim();
+      var optionRows = optionCols.map(function (col) {
+        var label = (headers[col] || '').toString().trim() || 'Option ' + col;
+        var count = countSelected(rows, col);
+        var pct = Math.round((count / n) * 100);
+        return { option: label, percent: pct };
+      });
+      return { question: question, rows: optionRows };
+    }
+
+    var internalUgr = buildUgrSection(20, [21, 22, 23, 24, 25]);
+    var externalUgr = buildUgrSection(26, [27, 28, 29, 30, 31]);
+
+    return {
+      title: 'Brand Affinity',
+      internalUgr: internalUgr,
+      externalUgr: externalUgr,
+      sampleSize: n
+    };
   }
 
   function paginateCommentResponses(commentQuestions) {
@@ -567,11 +627,17 @@
     }, container, { pageNumber: slideNumber++ });
 
     // 2. Report Methodology
+    var methodologyInvitations = (theme && theme.methodology && theme.methodology.invitations) != null
+      ? Number(theme.methodology.invitations)
+      : null;
+    var methodologyResponseRate = (methodologyInvitations > 0)
+      ? Math.round((currentData.totalResponses / methodologyInvitations) * 100)
+      : null;
     generator.addSlide('methodology', {
       title: 'Methodology',
+      invitations: methodologyInvitations,
       uniqueResponses: currentData.totalResponses,
-      totalHeadcount: currentData.totalResponses,
-      responseRate: 100
+      responseRate: methodologyResponseRate
     }, container, { pageNumber: slideNumber++ });
 
     // 3. Engagement Model
@@ -661,6 +727,17 @@
           yearLabels: dimData.yearLabels,
           seriesColors: seriesColors
         }, container, { pageNumber: slideNumber++ });
+
+        if (dim.name === 'Brand Affinity') {
+          try {
+            var ugrData = calculateBrandAffinityUgrData(dataSet);
+            if (ugrData && ugrData.internalUgr && ugrData.externalUgr) {
+              generator.addSlide('brand-affinity', ugrData, container, { pageNumber: slideNumber++ });
+            }
+          } catch (e) {
+            console.warn('Brand Affinity UGR slide skipped:', e.message);
+          }
+        }
       });
     } catch (err) {
       console.error('Dimension statements failed:', err);

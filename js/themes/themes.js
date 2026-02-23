@@ -19,6 +19,9 @@
         date: 'February 2026',
         textPlacement: 'right'
       },
+      methodology: {
+        invitations: 146
+      },
       colors: {
         primary: '#4b4b55', 
         secondary: '#fa6401',
@@ -47,6 +50,33 @@
         seriesPrimary: '#4472C4',
         seriesSecondary: '#000000',
         seriesColors: ['#FFB800', '#FA6401', '#333333', '#999999']
+      },
+      ratingScale: {
+        points: 4,
+        items: [
+          { label: 'STRONGLY AGREE', pct: '100%' },
+          { label: 'AGREE', pct: '66%' },
+          { label: 'DISAGREE', pct: '33%' },
+          { label: 'STRONGLY DISAGREE', pct: '0%' }
+        ]
+      },
+      engagementLegend: {
+        layout: 'table',
+        thresholds: [50, 65, 85],
+        items: [
+          { range: '≥85', category: 'Actively Engaged', description: 'Exceptionally high levels of motivation and passion which will help move the company forward', class: 'engagement-peg-1' },
+          { range: '65-&lt;85', category: 'Engaged', description: 'High levels of motivation and care which will drive growth and high performance', class: 'engagement-peg-2' },
+          { range: '51-&lt;65', category: 'Ambivalent', description: 'Adequate levels of motivation which will contribute to maintenance of current operations', class: 'engagement-peg-3' },
+          { range: '&lt;50', category: 'Disengaged', description: 'Some indicators of unhappiness and dissatisfaction which are impacting poorly on motivation', class: 'engagement-peg-4' }
+        ]
+      },
+      riskLegend: {
+        items: [
+          { label: 'Low Risk (< 20)', class: 'risk-low' },
+          { label: 'Medium Risk (20 - 35)', class: 'risk-medium' },
+          { label: 'High Risk (35 - 50)', class: 'risk-high' },
+          { label: 'Very High Risk (> 50)', class: 'risk-very-high' }
+        ]
       }
     },
     seacom: {
@@ -58,6 +88,9 @@
         surveyName: '',
         date: '',
         textPlacement: 'left'
+      },
+      methodology: {
+        invitations: 444
       },
       colors: {
         primary: '#2563eb',
@@ -87,8 +120,68 @@
         seriesPrimary: '#2563eb',
         seriesSecondary: '#111827',
         seriesColors: ['#2563eb', '#111827']
+      },
+      ratingScale: {
+        points: 5,
+        items: [
+          { label: 'STRONGLY DISAGREE', pct: '0%' },
+          { label: 'DISAGREE', pct: '25%' },
+          { label: 'NEUTRAL', pct: '50%' },
+          { label: 'AGREE', pct: '75%' },
+          { label: 'STRONGLY AGREE', pct: '100%' }
+        ]
+      },
+      engagementLegend: {
+        layout: 'list',
+        thresholds: [25, 52, 65, 75],
+        items: [
+          { label: 'Actively Disengaged (< 25%)', class: 'engagement-very-low' },
+          { label: 'Disengaged (25 - 52%)', class: 'engagement-low' },
+          { label: 'Ambivalent (52 - 65%)', class: 'engagement-moderate' },
+          { label: 'Engaged (65 - 75%)', class: 'engagement-high' },
+          { label: 'Actively Engaged (≥ 75%)', class: 'engagement-very-high' }
+        ]
+      },
+      riskLegend: {
+        items: [
+          { label: 'Low Risk (< 20)', class: 'risk-low' },
+          { label: 'Medium Risk (20 - 35)', class: 'risk-medium' },
+          { label: 'High Risk (35 - 50)', class: 'risk-high' },
+          { label: 'Very High Risk (> 50)', class: 'risk-very-high' }
+        ]
       }
     }
+  };
+
+  const defaultRatingScale = {
+    points: 5,
+    items: [
+      { label: 'STRONGLY DISAGREE', pct: '0%' },
+      { label: 'DISAGREE', pct: '25%' },
+      { label: 'NEUTRAL', pct: '50%' },
+      { label: 'AGREE', pct: '75%' },
+      { label: 'STRONGLY AGREE', pct: '100%' }
+    ]
+  };
+
+  const defaultEngagementLegend = {
+    layout: 'list',
+    items: [
+      { label: 'Actively Disengaged (< 25%)', class: 'engagement-very-low' },
+      { label: 'Disengaged (25 - 52%)', class: 'engagement-low' },
+      { label: 'Ambivalent (52 - 65%)', class: 'engagement-moderate' },
+      { label: 'Engaged (65 - 75%)', class: 'engagement-high' },
+      { label: 'Actively Engaged (≥ 75%)', class: 'engagement-very-high' }
+    ]
+  };
+
+  const defaultRiskLegend = {
+    items: [
+      { label: 'Low Risk (< 20)', class: 'risk-low' },
+      { label: 'Medium Risk (20 - 35)', class: 'risk-medium' },
+      { label: 'High Risk (35 - 50)', class: 'risk-high' },
+      { label: 'Very High Risk (> 50)', class: 'risk-very-high' }
+    ]
   };
 
   const defaultThemeId = 'pegasys';
@@ -104,7 +197,10 @@
   window.ThemeRegistry = {
     defaultThemeId,
     listThemes,
-    getTheme
+    getTheme,
+    defaultRatingScale,
+    defaultEngagementLegend,
+    defaultRiskLegend
   };
 })();
 

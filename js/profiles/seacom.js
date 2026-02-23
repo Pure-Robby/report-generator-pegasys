@@ -156,11 +156,17 @@
       textPlacement: coverTextPlacement
     }, container, { pageNumber: slideNumber++ });
 
+    const methodologyInvitations = (theme && theme.methodology && theme.methodology.invitations) != null
+      ? Number(theme.methodology.invitations)
+      : null;
+    const methodologyResponseRate = (methodologyInvitations > 0)
+      ? Math.round((currentData.totalResponses / methodologyInvitations) * 100)
+      : null;
     generator.addSlide('methodology', {
       title: 'Methodology',
+      invitations: methodologyInvitations,
       uniqueResponses: currentData.totalResponses,
-      totalHeadcount: 444,
-      responseRate: Math.round((currentData.totalResponses / 444) * 100)
+      responseRate: methodologyResponseRate
     }, container, { pageNumber: slideNumber++ });
 
     generator.addSlide('engagement-model', {

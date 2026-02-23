@@ -31,10 +31,12 @@ class QuestionsSlide extends SlideBase {
         const body = document.createElement('div');
         body.className = 'questions-content';
         
-        // Description paragraph
+        // Description paragraph – scale points from theme (4 or 5)
+        const theme = (typeof window !== 'undefined' && window.ThemeManager && window.ThemeManager.getActiveTheme && window.ThemeManager.getActiveTheme()) || null;
+        const points = (theme && theme.ratingScale && theme.ratingScale.points) || 5;
         const description = document.createElement('p');
         description.className = 'questions-description';
-        description.textContent = 'Statements with subsequent agreement factors that made use of a 5 point scale, which formed the base for the engagement index (%).';
+        description.textContent = `Statements with subsequent agreement factors that made use of a ${points} point scale, which formed the base for the engagement index (%).`;
         body.appendChild(description);
         
         // Rating scale table
@@ -74,75 +76,139 @@ class QuestionsSlide extends SlideBase {
         }
         table.className = tableClasses.join(' ');
         
-        // Table header
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
-            <tr>
-                <th class="dimension-col">DIMENSION</th>
-                <th>QUESTIONS</th>
-            </tr>
-        `;
-        table.appendChild(thead);
-        
-        // Table body
-        const tbody = document.createElement('tbody');
         const dimensions = this.data.dimensions || [];
-        
-        // Handle pagination if provided
         const startIndex = this.data.startIndex || 0;
         const endIndex = this.data.endIndex || dimensions.length;
         const pageDimensions = dimensions.slice(startIndex, endIndex);
+        const showCategory = pageDimensions.some(d => d && d.group);
+
+        // Table header
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        if (showCategory) {
+            headerRow.innerHTML = '<th class="category-col">CATEGORY</th><th class="dimension-col">DIMENSION</th><th>QUESTIONS</th>';
+        } else {
+            headerRow.innerHTML = '<th class="dimension-col">DIMENSION</th><th>QUESTIONS</th>';
+        }
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
         
-        // Build rows for each dimension and its questions
-        // Track group index for consistent striping across rowspan
+        const tbody = document.createElement('tbody');
+        
+        if (showCategory) {
+            this.appendQuestionsRowsWithCategory(tbody, pageDimensions);
+        } else {
+            this.appendQuestionsRowsTwoColumns(tbody, pageDimensions);
+        }
+        
+        table.appendChild(tbody);
+        return table;
+    }
+
+    escapeHtml(str) {
+        if (str == null) return '';
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(String(str)));
+        return div.innerHTML;
+    }
+
+    appendQuestionsRowsWithCategory(tbody, pageDimensions) {
+        const groups = [];
+        let currentGroup = null;
+        pageDimensions.forEach(dim => {
+            const groupName = dim && dim.group ? dim.group : '';
+            if (!currentGroup || currentGroup.name !== groupName) {
+                currentGroup = { name: groupName, dimensions: [] };
+                groups.push(currentGroup);
+            }
+            currentGroup.dimensions.push(dim);
+        });
+
         let groupIndex = 0;
-        
+        groups.forEach(group => {
+            const backgroundClass = groupIndex % 2 === 0 ? 'odd-group' : 'even-group';
+            let categoryRowCount = 0;
+            group.dimensions.forEach(dim => {
+                const questions = dim.questions || [];
+                categoryRowCount += questions.length > 0 ? questions.length : 1;
+            });
+
+            let isFirstRowInCategory = true;
+            group.dimensions.forEach(dimension => {
+                const questions = dimension.questions || [];
+                const rowCount = questions.length > 0 ? questions.length : 1;
+                const emptyLabel = questions.length === 0 ? 'No questions defined' : '';
+
+                if (questions.length === 0) {
+                    const row = document.createElement('tr');
+                    row.className = backgroundClass;
+                    const categoryCell = isFirstRowInCategory
+                        ? `<td class="category-cell" rowspan="${categoryRowCount}">${this.escapeHtml(group.name)}</td>`
+                        : '';
+                    row.innerHTML = categoryCell + `<td class="dimension-name">${this.escapeHtml(dimension.name)}</td><td>${emptyLabel}</td>`;
+                    tbody.appendChild(row);
+                    isFirstRowInCategory = false;
+                } else {
+                    questions.forEach((question, qIndex) => {
+                        const row = document.createElement('tr');
+                        row.className = backgroundClass;
+                        let html = '';
+                        if (isFirstRowInCategory) {
+                            html += `<td class="category-cell" rowspan="${categoryRowCount}">${this.escapeHtml(group.name)}</td>`;
+                            isFirstRowInCategory = false;
+                        }
+                        if (qIndex === 0) {
+                            html += `<td class="dimension-name" rowspan="${rowCount}">${this.escapeHtml(dimension.name)}</td>`;
+                        }
+                        html += `<td>${this.escapeHtml(question)}</td>`;
+                        row.innerHTML = html;
+                        tbody.appendChild(row);
+                    });
+                }
+            });
+            groupIndex++;
+        });
+    }
+
+    appendQuestionsRowsTwoColumns(tbody, pageDimensions) {
+        let groupIndex = 0;
         pageDimensions.forEach(dimension => {
             const questions = dimension.questions || [];
             const backgroundClass = groupIndex % 2 === 0 ? 'odd-group' : 'even-group';
             
             if (questions.length === 0) {
-                // No questions for this dimension
                 const row = document.createElement('tr');
                 row.className = backgroundClass;
                 row.innerHTML = `
-                    <td class="dimension-name">${dimension.name}</td>
+                    <td class="dimension-name">${this.escapeHtml(dimension.name)}</td>
                     <td>No questions defined</td>
                 `;
                 tbody.appendChild(row);
             } else if (questions.length === 1) {
-                // Single question - simple row
                 const row = document.createElement('tr');
                 row.className = backgroundClass;
                 row.innerHTML = `
-                    <td class="dimension-name">${dimension.name}</td>
-                    <td>${questions[0]}</td>
+                    <td class="dimension-name">${this.escapeHtml(dimension.name)}</td>
+                    <td>${this.escapeHtml(questions[0])}</td>
                 `;
                 tbody.appendChild(row);
             } else {
-                // Multiple questions - first row with rowspan, all with same background
                 questions.forEach((question, qIndex) => {
                     const row = document.createElement('tr');
-                    row.className = backgroundClass; // Same class for all rows in this dimension
+                    row.className = backgroundClass;
                     if (qIndex === 0) {
-                        // First question - include dimension with rowspan
                         row.innerHTML = `
-                            <td class="dimension-name" rowspan="${questions.length}">${dimension.name}</td>
-                            <td>${question}</td>
+                            <td class="dimension-name" rowspan="${questions.length}">${this.escapeHtml(dimension.name)}</td>
+                            <td>${this.escapeHtml(question)}</td>
                         `;
                     } else {
-                        // Subsequent questions - no dimension cell
-                        row.innerHTML = `<td>${question}</td>`;
+                        row.innerHTML = `<td>${this.escapeHtml(question)}</td>`;
                     }
                     tbody.appendChild(row);
                 });
             }
-            
-            groupIndex++; // Increment for next dimension group
+            groupIndex++;
         });
-        
-        table.appendChild(tbody);
-        return table;
     }
 }
 

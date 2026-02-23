@@ -111,12 +111,24 @@ table thead th {
   text-align: left;
 }
 
+.survey-questions .category-col {
+  width: 18%;
+}
+
 .survey-questions .dimension-col {
   width: 25%;
 }
 
 .survey-questions .dimension-name {
   font-weight: 500;
+}
+
+.survey-questions .category-cell {
+  background: var(--secondary-color, #fa6401) !important;
+  color: #fff;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: middle;
 }
 
 /* group striping applied to cells */
@@ -831,15 +843,15 @@ table thead th {
 }
 
 /*Report Methodology*/
-.methodology-slide .rating-scale thead th:nth-last-child(-n + 5),
-.methodology-slide .rating-scale tbody td:nth-last-child(-n + 5) {
+.methodology-rating-table thead th:nth-last-child(-n + 5),
+.methodology-rating-table tbody td:nth-last-child(-n + 5) {
   width: 17%;
 }
 
-.methodology-slide .rating-scale thead th:first-of-type {
+/* .methodology-rating-table thead th:first-of-type {
   background: var(--surface-color);
   border: 1px solid var(--border-color);
-}
+} */
 
 .engagement-categories {
   display: flex;
@@ -881,6 +893,42 @@ table thead th {
 .engagement-categories div:nth-child(5) {
   background-color: #00af50;
   color: white;
+}
+
+/* Engagement legend – table layout (e.g. Pegasys) */
+.engagement-legend-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.engagement-legend-table th,
+.engagement-legend-table td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  color: var(--text-color);
+}
+
+.engagement-legend-table th {
+  background: var(--surface-muted-color);
+  font-weight: 600;
+}
+
+.engagement-legend-table td.legend-range {
+  font-weight: 700;
+  text-align: center;
+  min-width: 4rem;
+}
+
+.engagement-peg-1 { background-color: #00af50 !important; color: #fff !important; }
+.engagement-peg-2 { background-color: #92d051 !important; color: #000 !important; }
+.engagement-peg-3 { background-color: #ffc000 !important; color: #000 !important; }
+.engagement-peg-4 { background-color: #b00108 !important; color: #fff !important; }
+
+/* When engagement-categories wraps the theme legend (list or table), avoid conflicting flex */
+.engagement-categories > .legend {
+  width: 100%;
 }
 
 /* Responsive table adjustments */
@@ -1016,4 +1064,69 @@ table thead th {
 
 .enps-calc-note p {
   margin: 0;
+}
+
+/* Brand Affinity slide */
+/* .brand-affinity-slide .slide-page-header h1 {
+  position: relative;
+  padding-bottom: 0.5rem;
+} */
+
+/* .brand-affinity-slide .slide-page-header h1::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 80px;
+  height: 4px;
+  background-color: var(--secondary-color);
+} */
+
+.brand-affinity-slide .slide-page-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-affinity-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1.25rem;
+  min-height: 0;
+}
+
+.brand-affinity-question {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.brand-affinity-table {
+  font-size: 0.85rem;
+}
+
+.brand-affinity-table th,
+.brand-affinity-table td {
+  padding: 0.35rem 0.75rem;
+}
+
+.brand-affinity-table th:first-child,
+.brand-affinity-table td:first-child {
+  text-align: left;
+  width: 70%;
+}
+
+.brand-affinity-table th:last-child,
+.brand-affinity-table td:last-child {
+  text-align: center;
+  width: 30%;
+}
+
+.brand-affinity-footer-note {
+  margin: 0;
+  margin-top: auto;
+  font-size: 0.7rem;
+  color: var(--text-subtle-color);
+  text-align: right;
 }

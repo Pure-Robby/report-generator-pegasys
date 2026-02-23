@@ -15,16 +15,10 @@ class LegendComponent {
 
     let html = '<div class="engagement-legend-wrapper">';
 
-    if (showCategories) {
-      html += `
-                <div class="engagement-categories">
-                    <div>Actively Disengaged (&lt;25%)</div>
-                    <div>Disengaged (>=25% AND &lt;52%)</div>
-                    <div>Ambivalent (>=52% AND &lt;65%)</div>
-                    <div>Engaged (>=65% AND &lt;75%)</div>
-                    <div>Actively Engaged (>=75%)</div>
-                </div>
-            `;
+    if (showCategories && typeof ColorMapper !== 'undefined' && ColorMapper.buildEngagementLegendFromConfig) {
+      const theme = (typeof window !== 'undefined' && window.ThemeManager && window.ThemeManager.getActiveTheme) ? window.ThemeManager.getActiveTheme() : null;
+      const config = (theme && theme.engagementLegend) || (window.ThemeRegistry && window.ThemeRegistry.defaultEngagementLegend) || null;
+      html += '<div class="engagement-categories">' + ColorMapper.buildEngagementLegendFromConfig(config) + '</div>';
     }
 
     if (showShiftIndicators) {
