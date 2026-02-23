@@ -1066,22 +1066,61 @@ table thead th {
   margin: 0;
 }
 
+/* Dual Multi-Select slide (e.g. Management) */
+.dual-multiselect-slide .slide-page-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.dual-multiselect-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.dual-multiselect-question {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.dual-multiselect-table {
+  font-size: 0.8rem;
+  flex: 1;
+}
+
+.dual-multiselect-table th,
+.dual-multiselect-table td {
+  padding: 0.3rem 0.6rem;
+}
+
+.dual-multiselect-table th:first-child,
+.dual-multiselect-table td:first-child {
+  text-align: left;
+}
+
+.dual-multiselect-statement {
+  width: 55%;
+}
+
+.dual-multiselect-table th:not(:first-child),
+.dual-multiselect-table td:not(:first-child) {
+  text-align: center;
+  width: 22.5%;
+}
+
+.dual-multiselect-footer-note {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--text-subtle-color);
+  text-align: right;
+}
+
 /* Brand Affinity slide */
-/* .brand-affinity-slide .slide-page-header h1 {
-  position: relative;
-  padding-bottom: 0.5rem;
-} */
-
-/* .brand-affinity-slide .slide-page-header h1::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 80px;
-  height: 4px;
-  background-color: var(--secondary-color);
-} */
-
 .brand-affinity-slide .slide-page-content {
   display: flex;
   flex-direction: column;

@@ -119,3 +119,43 @@
 }
 
 /* Dimension breakpoints removed; heights use var(--slide-height) above */
+
+/* ========================================
+   YES/NO CHART SLIDE STYLES
+   ======================================== */
+.yes-no-chart-slide .slide-page-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.yes-no-chart-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  padding: 0 1.5rem;
+  min-height: 0;
+}
+
+.yes-no-chart-container {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  max-height: 500px;
+  margin-bottom: 2rem;
+}
+
+.yes-no-question {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.yes-no-footer-note {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.7rem;
+  color: var(--text-subtle-color);
+  text-align: right;
+}

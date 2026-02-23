@@ -414,6 +414,69 @@
     return Math.max(1, Math.ceil(len / COMMENT_CHARS_PER_LINE));
   }
 
+  function calculateManagementTableData(excelData) {
+    var current = excelData.current;
+    var rows = current.rows || [];
+    var headers = current.questionHeaders || [];
+    var n = rows.length;
+    if (n === 0) return null;
+
+    var GREAT_JOB_OPTIONS = [64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81];
+    var DO_MORE_OPTIONS   = [83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100];
+
+    function countSelected(col) {
+      return rows.filter(function (r) {
+        var v = r[col];
+        return v !== null && v !== undefined && v !== '' && String(v).trim() !== '';
+      }).length;
+    }
+
+    var tableRows = GREAT_JOB_OPTIONS.map(function (col, i) {
+      var statement = (headers[col] || '').toString().trim().replace(/\r\n|\n/g, ' ') || ('Option ' + col);
+      var col1Pct = Math.round((countSelected(col) / n) * 100);
+      var col2Pct = Math.round((countSelected(DO_MORE_OPTIONS[i]) / n) * 100);
+      return { statement: statement, col1Percent: col1Pct, col2Percent: col2Pct };
+    });
+
+    var doMoreQuestion = (headers[82] || '').toString().trim();
+
+    return {
+      title: 'Management',
+      question: 'What is your direct line manager doing a great job of as well as what would you like to see your direct line manager do more of in the future? (select a maximum of 3 answers)',
+      col1Header: 'What is your direct line manager doing a great job of?',
+      col2Header: doMoreQuestion || 'What would you like to see your direct line manager do more of in future?',
+      rows: tableRows,
+      sampleSize: n
+    };
+  }
+
+  function calculateRskGroupData(excelData) {
+    var current = excelData.current;
+    var rows = current.rows || [];
+    var headers = current.questionHeaders || [];
+    var n = rows.length;
+    if (n === 0) return null;
+
+    var RSK_COL = 32;
+    var question = (headers[RSK_COL] || 'I am comfortable being a part of the RSK Group').toString().trim();
+
+    var yesCount = 0;
+    var noCount  = 0;
+    rows.forEach(function (r) {
+      var v = (r[RSK_COL] == null) ? '' : String(r[RSK_COL]).trim().toLowerCase();
+      if (v === 'yes' || v === '1' || v === 'true') yesCount++;
+      else if (v === 'no' || v === '0' || v === 'false') noCount++;
+    });
+
+    return {
+      title: 'Brand Affinity',
+      question: question,
+      yesPercent: Math.round((yesCount / n) * 100),
+      noPercent:  Math.round((noCount  / n) * 100),
+      sampleSize: n
+    };
+  }
+
   function calculateBrandAffinityUgrData(excelData) {
     var current = excelData.current;
     var rows = current.rows || [];
@@ -728,6 +791,17 @@
           seriesColors: seriesColors
         }, container, { pageNumber: slideNumber++ });
 
+        if (dim.name === 'Management') {
+          try {
+            var mgmtData = calculateManagementTableData(dataSet);
+            if (mgmtData) {
+              generator.addSlide('dual-multiselect', mgmtData, container, { pageNumber: slideNumber++ });
+            }
+          } catch (e) {
+            console.warn('Management table slide skipped:', e.message);
+          }
+        }
+
         if (dim.name === 'Brand Affinity') {
           try {
             var ugrData = calculateBrandAffinityUgrData(dataSet);
@@ -736,6 +810,14 @@
             }
           } catch (e) {
             console.warn('Brand Affinity UGR slide skipped:', e.message);
+          }
+          try {
+            var rskData = calculateRskGroupData(dataSet);
+            if (rskData) {
+              generator.addSlide('yes-no-chart', rskData, container, { pageNumber: slideNumber++ });
+            }
+          } catch (e) {
+            console.warn('RSK Group slide skipped:', e.message);
           }
         }
       });
