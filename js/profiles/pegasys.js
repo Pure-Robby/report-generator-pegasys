@@ -414,6 +414,92 @@
     return Math.max(1, Math.ceil(len / COMMENT_CHARS_PER_LINE));
   }
 
+  var RETENTION_PAIRS = [
+    { grouping: 'Hybrid working',       leavingCol: 147, stayingCol: 165 },
+    { grouping: 'My job arrangements',  leavingCol: 148, stayingCol: 166 },
+    { grouping: 'My career',            leavingCol: 149, stayingCol: 167 },
+    { grouping: 'My desire for change', leavingCol: 150, stayingCol: 168 },
+    { grouping: 'My manager',           leavingCol: 151, stayingCol: 169 },
+    { grouping: 'My pay',               leavingCol: 152, stayingCol: 170 },
+    { grouping: 'My recognition',       leavingCol: 153, stayingCol: 171 },
+    { grouping: 'My wellbeing',         leavingCol: 155, stayingCol: 172 },
+    { grouping: 'My work',              leavingCol: 156, stayingCol: 173 },
+    { grouping: 'Other opportunities',  leavingCol: 157, stayingCol: 174 },
+    { grouping: 'Having a voice',       leavingCol: 158, stayingCol: 175 },
+    { grouping: 'The future',           leavingCol: 159, stayingCol: 176 },
+    { grouping: 'Belonging',            leavingCol: 160, stayingCol: 177 }
+  ];
+
+  function stripGroupingPrefix(raw) {
+    var text = (raw || '').toString().trim().replace(/\r\n|\n/g, ' ');
+    var dashIdx = text.indexOf(' - ');
+    return dashIdx !== -1 ? text.slice(dashIdx + 3).trim() : text;
+  }
+
+  function calculateRetentionComments(excelData) {
+    var current = excelData.current;
+    var rows = current.rows || [];
+    var headers = current.questionHeaders || [];
+
+    var sources = [
+      { questionCol: 146, responseCol: 163 },
+      { questionCol: 164, responseCol: 180 }
+    ];
+
+    return sources.map(function (src) {
+      var question = cleanQuestionText(headers[src.questionCol]) || ('Comment col ' + src.responseCol);
+      var responses = rows
+        .map(function (r) { return r[src.responseCol]; })
+        .filter(function (v) { return v !== null && v !== undefined && v !== ''; })
+        .map(function (v) { return v.toString().trim(); })
+        .filter(Boolean);
+      return {
+        question: question,
+        questionRaw: question,
+        columnIndex: src.responseCol,
+        responses: responses,
+        responseCount: responses.length,
+        summary: '',
+        summaryRaw: ''
+      };
+    }).filter(function (c) { return c.responseCount > 0; });
+  }
+
+  function calculateRetentionTableData(excelData) {
+    var current = excelData.current;
+    var rows = current.rows || [];
+    var headers = current.questionHeaders || [];
+    var n = rows.length;
+    if (n === 0) return null;
+
+    function countSelected(col) {
+      return rows.filter(function (r) {
+        var v = r[col];
+        return v !== null && v !== undefined && v !== '' && String(v).trim() !== '';
+      }).length;
+    }
+
+    var tableRows = RETENTION_PAIRS.map(function (pair) {
+      return {
+        grouping: pair.grouping + ':',
+        leavingStatement:  stripGroupingPrefix(headers[pair.leavingCol]),
+        leavingPercent:    Math.round((countSelected(pair.leavingCol)  / n) * 100),
+        stayingStatement:  stripGroupingPrefix(headers[pair.stayingCol]),
+        stayingPercent:    Math.round((countSelected(pair.stayingCol) / n) * 100)
+      };
+    });
+
+    var question = (headers[146] || '').toString().trim().replace(/\r\n|\n/g, ' ')
+      || 'Reasons selected why you may consider leaving as well as what leads you to stay (select up to 3 answers)';
+
+    return {
+      title: 'Retention',
+      question: question,
+      rows: tableRows,
+      sampleSize: n
+    };
+  }
+
   function calculateManagementTableData(excelData) {
     var current = excelData.current;
     var rows = current.rows || [];
@@ -790,6 +876,32 @@
           yearLabels: dimData.yearLabels,
           seriesColors: seriesColors
         }, container, { pageNumber: slideNumber++ });
+
+        if (dim.name === 'Retention') {
+          try {
+            var retentionData = calculateRetentionTableData(dataSet);
+            if (retentionData) {
+              generator.addSlide('retention-table', retentionData, container, { pageNumber: slideNumber++ });
+            }
+          } catch (e) {
+            console.warn('Retention table slide skipped:', e.message);
+          }
+          try {
+            var retentionComments = calculateRetentionComments(dataSet);
+            var retentionCommentPages = paginateCommentResponses(retentionComments);
+            retentionCommentPages.forEach(function (page) {
+              generator.addSlide('comments', {
+                title: page.isContinuation
+                  ? page.questionRaw + ' (continued)'
+                  : page.questionRaw,
+                commentMode: 'dump',
+                questions: [page]
+              }, container, { pageNumber: slideNumber++ });
+            });
+          } catch (e) {
+            console.warn('Retention comments skipped:', e.message);
+          }
+        }
 
         if (dim.name === 'Management') {
           try {

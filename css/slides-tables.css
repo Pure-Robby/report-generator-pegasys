@@ -1066,6 +1066,67 @@ table thead th {
   margin: 0;
 }
 
+/* Retention table slide */
+.retention-table-slide .slide-page-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.retention-table-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.retention-table-question {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.retention-table {
+  font-size: 0.78rem;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.retention-table th,
+.retention-table td {
+  padding: 0.35rem 0.5rem;
+  vertical-align: middle;
+}
+
+.retention-col-grouping { width: 10%; text-align: left; }
+.retention-col-statement { width: 37%; text-align: left; }
+.retention-col-pct { width: 8%; text-align: center; }
+
+.retention-table td:first-child,
+.retention-table td:nth-child(2),
+.retention-table td:nth-child(4) {
+  text-align: left;
+}
+
+.retention-pct {
+  text-align: center;
+  font-weight: 600;
+}
+
+.retention-grouping {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.retention-table-footer-note {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--text-subtle-color);
+  text-align: right;
+}
+
 /* Dual Multi-Select slide (e.g. Management) */
 .dual-multiselect-slide .slide-page-content {
   display: flex;
