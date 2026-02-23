@@ -122,6 +122,10 @@ class HorizontalBarChartSlide extends SlideBase {
             Chart.register(ChartDataLabels);
         }
 
+        const fontFamily = getComputedStyle(document.documentElement)
+            .getPropertyValue('--primary-font-family').trim()
+            || 'sans-serif';
+
         const statements = this.data.statements || [];
         const yearLabels = this.getYearLabels();
         const colors = this.getSeriesColors();
@@ -129,7 +133,7 @@ class HorizontalBarChartSlide extends SlideBase {
 
         const rawLabels = statements.map(s => s.isDimensionAggregate ? ('● ' + s.text) : s.text);
 
-        ctx.font = '400 12px Poppins';
+        ctx.font = `400 12px ${fontFamily}`;
         const MAX_LABEL_LINE_WIDTH = 360;
         const labels = rawLabels.map(label => wrapLabelByWidth(label, ctx, MAX_LABEL_LINE_WIDTH));
 
@@ -152,7 +156,7 @@ class HorizontalBarChartSlide extends SlideBase {
                         align: 'end',
                         anchor: 'end',
                         color: '#1e293b',
-                        font: { size: 11, family: 'Poppins', weight: 600 },
+                        font: { size: 11, family: fontFamily, weight: 600 },
                         formatter: function (value) { return value !== null ? value + '%' : ''; }
                     }
                 };
@@ -168,7 +172,7 @@ class HorizontalBarChartSlide extends SlideBase {
                 barThickness: barThickness,
                 datalabels: {
                     align: 'end', anchor: 'end', color: '#1e293b',
-                    font: { size: 11, family: 'Poppins', weight: 600 },
+                    font: { size: 11, family: fontFamily, weight: 600 },
                     formatter: function (value) { return value !== null ? value + '%' : ''; }
                 }
             }];
@@ -182,7 +186,7 @@ class HorizontalBarChartSlide extends SlideBase {
                     barThickness: barThickness,
                     datalabels: {
                         align: 'end', anchor: 'end', color: '#1e293b',
-                        font: { size: 11, family: 'Poppins', weight: 600 },
+                        font: { size: 11, family: fontFamily, weight: 600 },
                         formatter: function (value) { return value !== null ? value + '%' : ''; }
                     }
                 });
@@ -205,8 +209,8 @@ class HorizontalBarChartSlide extends SlideBase {
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: { size: 13, family: 'Poppins', weight: 600 },
-                        bodyFont: { size: 12, family: 'Poppins' },
+                        titleFont: { size: 13, family: fontFamily, weight: 600 },
+                        bodyFont: { size: 12, family: fontFamily },
                         padding: 12,
                         callbacks: {
                             title: function (tooltipItems) {
@@ -225,7 +229,7 @@ class HorizontalBarChartSlide extends SlideBase {
                         max: 100,
                         ticks: {
                             callback: function (value) { return value + '%'; },
-                            font: { family: 'Poppins', size: 12 },
+                            font: { family: fontFamily, size: 12 },
                             stepSize: 20
                         },
                         grid: { color: ColorMapper.COLORS.chart.grid || '#e5e7eb' }
@@ -235,9 +239,9 @@ class HorizontalBarChartSlide extends SlideBase {
                             font: function (context) {
                                 var idx = context.index;
                                 if (idx === aggregateIndex) {
-                                    return { family: 'Poppins', size: 12, weight: 700 };
+                                    return { family: fontFamily, size: 12, weight: 700 };
                                 }
-                                return { family: 'Poppins', size: 12, weight: 400 };
+                                return { family: fontFamily, size: 12, weight: 400 };
                             },
                             padding: 12,
                             maxWidth: 380,
