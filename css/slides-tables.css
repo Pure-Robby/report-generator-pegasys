@@ -131,13 +131,11 @@ table thead th {
   vertical-align: middle;
 }
 
-/* group striping applied to cells */
-.survey-questions.striped tbody tr.odd-group > td { background: var(--surface-muted-color); }
-.survey-questions.striped tbody tr.even-group > td { background: var(--surface-color); }
+/* group striping per dimension — all cells except the orange category-cell are striped */
+.survey-questions.striped tbody tr.odd-group > td:not(.category-cell) { background: var(--surface-muted-color); }
+.survey-questions.striped tbody tr.even-group > td:not(.category-cell) { background: var(--surface-color); }
 
-/* lock first column */
-.survey-questions.striped tbody td:first-child {
-  background: inherit;   /* or inherit, depending on desired look */
+.survey-questions.striped tbody td.category-cell {
   position: relative;
   z-index: 1;
 }
@@ -682,6 +680,14 @@ table thead th {
   .comments-slide .slide-body {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+.comment-dump-question {
+  font-family: var(--headings-font-family, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
 }
 
 .comment-count {

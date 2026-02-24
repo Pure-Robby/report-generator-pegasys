@@ -124,9 +124,8 @@ class QuestionsSlide extends SlideBase {
             currentGroup.dimensions.push(dim);
         });
 
-        let groupIndex = 0;
+        let dimensionIndex = 0;
         groups.forEach(group => {
-            const backgroundClass = groupIndex % 2 === 0 ? 'odd-group' : 'even-group';
             let categoryRowCount = 0;
             group.dimensions.forEach(dim => {
                 const questions = dim.questions || [];
@@ -135,6 +134,7 @@ class QuestionsSlide extends SlideBase {
 
             let isFirstRowInCategory = true;
             group.dimensions.forEach(dimension => {
+                const backgroundClass = dimensionIndex % 2 === 0 ? 'odd-group' : 'even-group';
                 const questions = dimension.questions || [];
                 const rowCount = questions.length > 0 ? questions.length : 1;
                 const emptyLabel = questions.length === 0 ? 'No questions defined' : '';
@@ -165,8 +165,8 @@ class QuestionsSlide extends SlideBase {
                         tbody.appendChild(row);
                     });
                 }
+                dimensionIndex++;
             });
-            groupIndex++;
         });
     }
 

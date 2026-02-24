@@ -101,6 +101,9 @@ class TenPointScaleChartSlide extends SlideBase {
             Chart.register(ChartDataLabels);
         }
 
+        const fontFamily = getComputedStyle(document.documentElement)
+            .getPropertyValue('--primary-font-family').trim() || 'sans-serif';
+
         const currentDist = this.data.distribution.distribution || [];
         const previousDist = this.data.previousDistribution?.distribution || [];
         const hasPrevious = previousDist.length > 0;
@@ -162,7 +165,7 @@ class TenPointScaleChartSlide extends SlideBase {
                     color: '#1e293b',
                     font: {
                         size: 11,
-                        family: 'Poppins',
+                        family: fontFamily,
                         weight: 600
                     },
                     formatter: (value) => value > 0 ? value + '%' : ''
@@ -184,7 +187,7 @@ class TenPointScaleChartSlide extends SlideBase {
                     color: '#1e293b',
                     font: {
                         size: 11,
-                        family: 'Poppins',
+                        family: fontFamily,
                         weight: 600
                     },
                     formatter: (value) => value > 0 ? value + '%' : ''
@@ -208,8 +211,8 @@ class TenPointScaleChartSlide extends SlideBase {
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: { size: 13, family: 'Poppins', weight: 600 },
-                        bodyFont: { size: 12, family: 'Poppins' },
+                        titleFont: { size: 13, family: fontFamily, weight: 600 },
+                        bodyFont: { size: 12, family: fontFamily },
                         padding: 12,
                         callbacks: {
                             title: function(tooltipItems) {
@@ -236,7 +239,7 @@ class TenPointScaleChartSlide extends SlideBase {
                                 return value + '%';
                             },
                             font: {
-                                family: 'Poppins',
+                                family: fontFamily,
                                 size: 12
                             },
                             stepSize: 5
@@ -248,7 +251,7 @@ class TenPointScaleChartSlide extends SlideBase {
                     x: {
                         ticks: {
                             font: {
-                                family: 'Poppins',
+                                family: fontFamily,
                                 size: 12,
                                 weight: 400
                             },

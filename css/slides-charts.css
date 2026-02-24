@@ -108,7 +108,7 @@
 .horizontal-chart-container {
   width: 100%;
   max-width: 1100px;
-  height: calc(var(--slide-height, 720px) * 0.69);
+  height: calc(var(--slide-height, 720px) * 0.77);
   position: relative;
   margin: 0 auto;
 }

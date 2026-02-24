@@ -194,6 +194,9 @@ class SatisfactionSlide extends SlideBase {
         if (window.ChartDataLabels) {
             Chart.register(ChartDataLabels);
         }
+
+        const fontFamily = getComputedStyle(document.documentElement)
+            .getPropertyValue('--primary-font-family').trim() || 'sans-serif';
         
         const currentData = this.data.currentData.overall;
         const previousHasData = this.data.previousData && this.data.previousData.hasData;
@@ -221,7 +224,7 @@ class SatisfactionSlide extends SlideBase {
                             color: '#ffffff',
                             font: {
                                 size: 14,
-                                family: 'Poppins',
+                                family: fontFamily,
                                 weight: 600
                             },
                             formatter: (value) => value > 0 ? value + '%' : ''
@@ -240,7 +243,7 @@ class SatisfactionSlide extends SlideBase {
                             color: '#ffffff',
                             font: {
                                 size: 14,
-                                family: 'Poppins',
+                                family: fontFamily,
                                 weight: 600
                             },
                             formatter: (value) => value > 0 ? value + '%' : ''
@@ -258,7 +261,7 @@ class SatisfactionSlide extends SlideBase {
                         position: 'bottom',
                         labels: {
                             font: {
-                                family: 'Poppins',
+                                family: fontFamily,
                                 size: 11
                             },
                             padding: 15,
@@ -268,8 +271,8 @@ class SatisfactionSlide extends SlideBase {
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: { size: 14, family: 'Poppins' },
-                        bodyFont: { size: 13, family: 'Poppins' },
+                        titleFont: { size: 14, family: fontFamily },
+                        bodyFont: { size: 13, family: fontFamily },
                         padding: 12,
                         callbacks: {
                             label: function(context) {
@@ -287,7 +290,7 @@ class SatisfactionSlide extends SlideBase {
                                 return value + '%';
                             },
                             font: {
-                                family: 'Poppins',
+                                family: fontFamily,
                                 size: 11
                             }
                         },
@@ -299,7 +302,7 @@ class SatisfactionSlide extends SlideBase {
                         stacked: true,
                         ticks: {
                             font: {
-                                family: 'Poppins',
+                                family: fontFamily,
                                 size: 12,
                                 weight: 600
                             }

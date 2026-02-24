@@ -65,6 +65,9 @@ class BarChartSlide extends SlideBase {
             Chart.register(ChartDataLabels);
         }
 
+        const fontFamily = getComputedStyle(document.documentElement)
+            .getPropertyValue('--primary-font-family').trim() || 'sans-serif';
+
         const labels = this.data.categories.map(label =>
             typeof label === 'string' ? label.split('\n') : label
         );
@@ -93,7 +96,7 @@ class BarChartSlide extends SlideBase {
                     align: 'end',
                     anchor: 'end',
                     color: '#1e293b',
-                    font: { size: 10, family: 'Poppins', weight: 600 },
+                    font: { size: 10, family: fontFamily, weight: 600 },
                     formatter: (value) => value !== null ? value + '%' : ''
                 }
             };
@@ -109,8 +112,8 @@ class BarChartSlide extends SlideBase {
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: { size: 14, family: 'Poppins' },
-                        bodyFont: { size: 13, family: 'Poppins' },
+                        titleFont: { size: 14, family: fontFamily },
+                        bodyFont: { size: 13, family: fontFamily },
                         padding: 12,
                         callbacks: {
                             title: function (tooltipItems) {
@@ -130,13 +133,13 @@ class BarChartSlide extends SlideBase {
                         max: 100,
                         ticks: {
                             callback: (value) => value + '%',
-                            font: { family: 'Poppins', size: 11 }
+                            font: { family: fontFamily, size: 12 }
                         },
                         grid: { color: ColorMapper.COLORS.chart.grid }
                     },
                     x: {
                         ticks: {
-                            font: { family: 'Poppins', size: 11 },
+                            font: { family: fontFamily, size: 12 },
                             maxRotation: 0,
                             minRotation: 0,
                             autoSkip: false,

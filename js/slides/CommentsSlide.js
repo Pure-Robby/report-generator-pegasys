@@ -40,6 +40,15 @@ class CommentsSlide extends SlideBase {
         const card = document.createElement('div');
         card.className = 'comment-card';
 
+        if (question.questionRaw) {
+            const questionEl = document.createElement('h6');
+            questionEl.className = 'comment-dump-question';
+            questionEl.textContent = question.isContinuation
+                ? question.questionRaw + ' (continued)'
+                : question.questionRaw;
+            card.appendChild(questionEl);
+        }
+
         if (!question.isContinuation) {
             const countEl = document.createElement('p');
             countEl.className = 'comment-count';

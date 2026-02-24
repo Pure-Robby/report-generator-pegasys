@@ -165,7 +165,7 @@
   // ── Calculation functions ─────────────────────────────────────────────────
 
   function calculateBarChartData(excelData) {
-    var categories = ['Overall\nEngagement'].concat(GROUPS.map(function (g) { return g.name.replace(/ & /g, ' &\n'); }));
+    var categories = ['Pegasys\nOverall'].concat(GROUPS.map(function (g) { return g.name.replace(/ & /g, ' &\n'); }));
     var cols = [COL.OVERALL].concat(GROUPS.map(function (g) { return g.col; }));
     var yearEntries = getAllYearRows(excelData);
 
@@ -236,7 +236,8 @@
     var yearEntries = getAllYearRows(excelData);
     var currentRows = excelData.current.rows;
     var previousRows = excelData.previous ? excelData.previous.rows : null;
-    var yearLabels = yearEntries.map(function (e) { return e.year; });
+    var relevantEntries = yearEntries.slice(0, 2); // [current, previous]
+    var yearLabels = relevantEntries.map(function (e) { return e.year; });
 
     var statements = [];
     DIMENSIONS.forEach(function (dim) {
@@ -248,7 +249,7 @@
         var previousScore = previousRows ? averageColumn(previousRows, colIdx) : null;
 
         var scores = {};
-        yearEntries.forEach(function (entry) {
+        relevantEntries.forEach(function (entry) {
           scores[entry.year] = averageColumn(entry.rows, colIdx);
         });
 
@@ -312,17 +313,33 @@
   }
 
   function paginateQuestions(excelData) {
-    const allDimensions = DIMENSIONS.map(dim => ({
-      name: dim.name,
-      group: dim.group,
-      questions: dim.questionCols
-        .map(colIdx => cleanQuestionText(excelData.current.questionHeaders[colIdx]))
-        .filter(Boolean)
-    })).filter(d => d.questions.length > 0);
+    var headers = excelData.current.questionHeaders || [];
 
-    const perPage = 6;
-    const pages = [];
-    for (let i = 0; i < allDimensions.length; i += perPage) {
+    var allDimensions = DIMENSIONS.map(function (dim) {
+      return {
+        name: dim.name,
+        group: dim.group,
+        questions: dim.questionCols
+          .map(function (colIdx) { return cleanQuestionText(headers[colIdx]); })
+          .filter(Boolean)
+      };
+    }).filter(function (d) { return d.questions.length > 0; });
+
+    var COMMENT_LABELS = ['Continue', 'Start', 'Stop', 'Most Improvement', 'Least Improvement'];
+    var commentDims = COMMENT_COLS.map(function (col, i) {
+      var q = cleanQuestionText(headers[col]);
+      return { name: COMMENT_LABELS[i], group: 'Comments', questions: q ? [q] : [] };
+    }).filter(function (d) { return d.questions.length > 0; });
+
+    var enpsQ = cleanQuestionText(headers[COL.NPS])
+      || "What is the likelihood that you would recommend Pegasys as a 'great place to work' to friends and family?";
+    var enpsDim = { name: 'eNPS', group: 'Employee Net Promoter Score', questions: [enpsQ] };
+
+    allDimensions = allDimensions.concat(commentDims).concat([enpsDim]);
+
+    var perPage = 6;
+    var pages = [];
+    for (var i = 0; i < allDimensions.length; i += perPage) {
       pages.push(allDimensions.slice(i, i + perPage));
     }
     return pages;
@@ -612,13 +629,7 @@
       responses.forEach(function (resp) {
         var lines = linesForComment(resp);
         if (currentPage.length > 0 && currentLines + lines > COMMENT_MAX_LINES_PER_SLIDE) {
-          pages.push({
-            question: q.question,
-            questionRaw: q.questionRaw,
-            responseCount: q.responseCount,
-            responses: currentPage,
-            isContinuation: pageIndex > 0
-          });
+          pages.push({ question: q.question, questionRaw: q.questionRaw, responseCount: q.responseCount, responses: currentPage, isContinuation: pageIndex > 0 });
           pageIndex++;
           currentPage = [];
           currentLines = 0;
@@ -628,13 +639,7 @@
       });
 
       if (currentPage.length) {
-        pages.push({
-          question: q.question,
-          questionRaw: q.questionRaw,
-          responseCount: q.responseCount,
-          responses: currentPage,
-          isContinuation: pageIndex > 0
-        });
+        pages.push({ question: q.question, questionRaw: q.questionRaw, responseCount: q.responseCount, responses: currentPage, isContinuation: pageIndex > 0 });
       }
     });
     return pages;
@@ -816,7 +821,7 @@
     try {
       var barData = calculateBarChartData(dataSet);
       generator.addSlide('barchart', {
-        title: 'Engagement Dimension Scores',
+        title: 'Category Indexes',
         categories: barData.categories,
         series: barData.series,
         seriesColors: seriesColors
@@ -890,12 +895,13 @@
             var retentionComments = calculateRetentionComments(dataSet);
             var retentionCommentPages = paginateCommentResponses(retentionComments);
             retentionCommentPages.forEach(function (page) {
+              var cleanPage = Object.assign({}, page, {
+                questionRaw: (page.questionRaw || '').replace(/\s*\([^)]*\)\s*$/, '')
+              });
               generator.addSlide('comments', {
-                title: page.isContinuation
-                  ? page.questionRaw + ' (continued)'
-                  : page.questionRaw,
+                title: 'Retention',
                 commentMode: 'dump',
-                questions: [page]
+                questions: [cleanPage]
               }, container, { pageNumber: slideNumber++ });
             });
           } catch (e) {
@@ -959,9 +965,7 @@
       var commentPages = paginateCommentResponses(commentsData);
       commentPages.forEach(function (page) {
         generator.addSlide('comments', {
-          title: page.isContinuation
-            ? page.questionRaw + ' (continued)'
-            : page.questionRaw,
+          title: 'Comments',
           commentMode: 'dump',
           questions: [page]
         }, container, { pageNumber: slideNumber++ });

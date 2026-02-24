@@ -269,10 +269,10 @@ class HorizontalBarChartSlide extends SlideBase {
 
     calculateBarThickness(statementCount, seriesCount) {
         var base;
-        if (statementCount <= 2) base = 35;
-        else if (statementCount <= 4) base = 30;
-        else if (statementCount <= 6) base = 25;
-        else if (statementCount <= 9) base = 20;
+        if (statementCount <= 2) base = 50;
+        else if (statementCount <= 4) base = 42;
+        else if (statementCount <= 6) base = 35;
+        else if (statementCount <= 9) base = 28;
         else if (statementCount <= 12) base = 18;
         else base = 15;
         if (seriesCount > 2) return Math.max(8, Math.round(base * 0.6));
