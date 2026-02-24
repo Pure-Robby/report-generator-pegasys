@@ -1033,7 +1033,7 @@
 
     // 10. Comments (paginated dump)
     try {
-      var commentsData = calculateComments(dataSet);
+      var commentsData = calculateComments(percentageSource);
       var commentPages = paginateCommentResponses(commentsData);
       commentPages.forEach(function (page) {
         generator.addSlide('comments', {
