@@ -35,7 +35,8 @@
         tableHeaderBg: '#1e293b',
         tableHeaderText: '#ffffff',
         tableAccentRowBg: '#e0e7ff',
-        heatmapHighlight: '#3b82f6'
+        heatmapHighlight: '#fa6401',
+        filteredReport: '#0197FA'
       },
       fonts: {
         body: "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
@@ -105,7 +106,8 @@
         tableHeaderBg: '#0f172a',
         tableHeaderText: '#ffffff',
         tableAccentRowBg: '#dbeafe',
-        heatmapHighlight: '#2563eb'
+        heatmapHighlight: '#2563eb',
+        filteredReport: '#0197FA'
       },
       fonts: {
         body: "Poppins, sans-serif, system-ui, -apple-system, 'Segoe UI', Arial",

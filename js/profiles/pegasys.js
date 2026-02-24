@@ -645,6 +645,41 @@
     return pages;
   }
 
+  // ── Filter dimensions (lightweight extraction for upload UI) ─────────────
+
+  var FILTER_DIMENSIONS = [
+    { key: 'practice', label: 'Practice', col: COL.PRACTICE },
+    { key: 'location', label: 'Location', col: COL.LOCATION }
+  ];
+
+  function getFilterDimensions(workbook) {
+    if (!workbook || !workbook.SheetNames || !workbook.SheetNames.length) return [];
+
+    var yearSheets = workbook.SheetNames.filter(function (n) { return /^\d{4}$/.test(n.trim()); });
+    if (!yearSheets.length) return [];
+
+    yearSheets.sort(function (a, b) { return parseInt(b) - parseInt(a); });
+    var sheet = workbook.Sheets[yearSheets[0]];
+    if (!sheet) return [];
+
+    var json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    if (!json || json.length < 5) return [];
+
+    var dataStartRow = detectDataStartRow(json);
+    var rows = json.slice(dataStartRow).filter(function (row) {
+      return Array.isArray(row) && row.some(function (cell) { return cell !== undefined && cell !== ''; });
+    });
+
+    return FILTER_DIMENSIONS.map(function (dim) {
+      var seen = {};
+      rows.forEach(function (row) {
+        var val = (row[dim.col] ?? '').toString().trim();
+        if (val) seen[val] = true;
+      });
+      return { key: dim.key, label: dim.label, col: dim.col, values: Object.keys(seen).sort() };
+    });
+  }
+
   // ── validateAndParseWorkbook ──────────────────────────────────────────────
 
   function validateAndParseWorkbook(workbook) {
@@ -820,11 +855,24 @@
     // 5. Bar Chart – main engagement categories (N-series)
     try {
       var barData = calculateBarChartData(dataSet);
+
+      var barSeriesColors = seriesColors ? seriesColors.slice() : null;
+      if (reportData.filteredData) {
+        var filteredBarData = calculateBarChartData(reportData.filteredData);
+        barData.series.push({
+          label: 'Filtered Report',
+          scores: filteredBarData.series[0].scores
+        });
+        if (!barSeriesColors) barSeriesColors = [];
+        var filteredColor = (theme && theme.colors && theme.colors.filteredReport) || '#0197FA';
+        barSeriesColors.push(filteredColor);
+      }
+
       generator.addSlide('barchart', {
         title: 'Category Indexes',
         categories: barData.categories,
         series: barData.series,
-        seriesColors: seriesColors
+        seriesColors: barSeriesColors
       }, container, { pageNumber: slideNumber++ });
     } catch (err) {
       console.error('Bar chart failed:', err);
@@ -845,6 +893,21 @@
     heatmapConfigs.forEach(function (config) {
       try {
         var hmData = calculateHeatmapData(dataSet, config.type, { showShiftIndicators: hasPreviousData });
+
+        if (reportData.filteredData) {
+          var filteredHm = calculateHeatmapData(reportData.filteredData, config.type, { showShiftIndicators: false });
+          var filteredOverall = filteredHm.rows[0];
+          var filteredRow = {
+            name: 'Filtered Report',
+            sampleSize: filteredOverall.sampleSize,
+            scores: filteredOverall.scores,
+            shifts: null,
+            isOverall: false,
+            isFiltered: true
+          };
+          hmData.rows.splice(1, 0, filteredRow);
+        }
+
         generator.addSlide('pegasys-heatmap', {
           title: config.title,
           columnHeaders: hmData.columnHeaders,
@@ -871,6 +934,7 @@
     }
 
     // 8. Horizontal bar chart per dimension (N-series + aggregate)
+    var percentageSource = reportData.filteredData || dataSet;
     try {
       var dimData = calculateDimensionStatements(dataSet);
       dimData.dimensions.forEach(function (dim) {
@@ -884,7 +948,7 @@
 
         if (dim.name === 'Retention') {
           try {
-            var retentionData = calculateRetentionTableData(dataSet);
+            var retentionData = calculateRetentionTableData(percentageSource);
             if (retentionData) {
               generator.addSlide('retention-table', retentionData, container, { pageNumber: slideNumber++ });
             }
@@ -892,7 +956,7 @@
             console.warn('Retention table slide skipped:', e.message);
           }
           try {
-            var retentionComments = calculateRetentionComments(dataSet);
+            var retentionComments = calculateRetentionComments(percentageSource);
             var retentionCommentPages = paginateCommentResponses(retentionComments);
             retentionCommentPages.forEach(function (page) {
               var cleanPage = Object.assign({}, page, {
@@ -911,7 +975,7 @@
 
         if (dim.name === 'Management') {
           try {
-            var mgmtData = calculateManagementTableData(dataSet);
+            var mgmtData = calculateManagementTableData(percentageSource);
             if (mgmtData) {
               generator.addSlide('dual-multiselect', mgmtData, container, { pageNumber: slideNumber++ });
             }
@@ -922,7 +986,7 @@
 
         if (dim.name === 'Brand Affinity') {
           try {
-            var ugrData = calculateBrandAffinityUgrData(dataSet);
+            var ugrData = calculateBrandAffinityUgrData(percentageSource);
             if (ugrData && ugrData.internalUgr && ugrData.externalUgr) {
               generator.addSlide('brand-affinity', ugrData, container, { pageNumber: slideNumber++ });
             }
@@ -930,7 +994,7 @@
             console.warn('Brand Affinity UGR slide skipped:', e.message);
           }
           try {
-            var rskData = calculateRskGroupData(dataSet);
+            var rskData = calculateRskGroupData(percentageSource);
             if (rskData) {
               generator.addSlide('yes-no-chart', rskData, container, { pageNumber: slideNumber++ });
             }
@@ -947,10 +1011,18 @@
     // 9. eNPS Table
     try {
       var enpsData = calculateEnpsTableData(dataSet, 'practice');
+
+      var enpsFilteredRow = null;
+      if (reportData.filteredData) {
+        var filteredEnps = calculateEnpsTableData(reportData.filteredData, 'practice');
+        enpsFilteredRow = Object.assign({}, filteredEnps.overallRow, { label: 'Filtered Report' });
+      }
+
       generator.addSlide('enps-table', {
         title: 'Employee Net Promoter Score (eNPS)',
         question: enpsData.question,
         overallRow: enpsData.overallRow,
+        filteredRow: enpsFilteredRow,
         breakdownRows: enpsData.breakdownRows,
         yearLabels: enpsData.yearLabels
       }, container, { pageNumber: slideNumber++ });
@@ -981,6 +1053,7 @@
     window.ProfileRegistry.register('pegasys', {
       validateAndParseWorkbook: validateAndParseWorkbook,
       buildSlides: buildSlides,
+      getFilterDimensions: getFilterDimensions,
       commentMode: 'dump'
     });
   }

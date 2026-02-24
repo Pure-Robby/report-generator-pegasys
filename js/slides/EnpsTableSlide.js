@@ -37,7 +37,7 @@ class EnpsTableSlide extends SlideBase {
     header.className = 'enps-header';
     header.innerHTML =
       '<p class="enps-intro">Employee Net Promoter Score (eNPS) is based on the question asked:</p>' +
-      '<p class="enps-question"><em>' + this.escapeHtml(this.data.question) + '</em></p>';
+      '<p class="enps-question">' + this.escapeHtml(this.data.question) + '</p>';
     return header;
   }
 
@@ -74,19 +74,24 @@ class EnpsTableSlide extends SlideBase {
     // ── tbody ──
     var tbody = document.createElement('tbody');
     var overall = this.data.overallRow;
-    tbody.appendChild(this.buildRow(overall, hasPrevious, true));
+    tbody.appendChild(this.buildRow(overall, hasPrevious, true, false));
+
+    if (this.data.filteredRow) {
+      tbody.appendChild(this.buildRow(this.data.filteredRow, hasPrevious, false, true));
+    }
 
     (this.data.breakdownRows || []).forEach(function (row) {
-      tbody.appendChild(this.buildRow(row, hasPrevious, false));
+      tbody.appendChild(this.buildRow(row, hasPrevious, false, false));
     }.bind(this));
 
     table.appendChild(tbody);
     return table;
   }
 
-  buildRow(row, hasPrevious, isOverall) {
+  buildRow(row, hasPrevious, isOverall, isFiltered) {
     var tr = document.createElement('tr');
     if (isOverall) tr.className = 'enps-overall-row';
+    if (isFiltered) tr.className = 'filtered-report-row';
 
     var labelTd = document.createElement(isOverall ? 'th' : 'td');
     labelTd.textContent = row.label;

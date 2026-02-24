@@ -80,6 +80,7 @@
     applyCssVar('--table-header-text', theme.colors.tableHeaderText);
     applyCssVar('--table-accent-row-bg', theme.colors.tableAccentRowBg);
     applyCssVar('--heatmap-highlight', theme.colors.heatmapHighlight);
+    applyCssVar('--filtered-report-color', theme.colors.filteredReport);
 
     // Charts
     applyCssVar('--chart-series-primary', theme.charts.seriesPrimary);

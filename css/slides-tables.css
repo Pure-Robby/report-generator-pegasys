@@ -387,6 +387,23 @@ table thead th {
   color: white !important;
 }
 
+/* Filtered report row highlight */
+.heatmap-table tbody tr.filtered-report-row > *:nth-child(-n + 2) {
+  background-color: var(--filtered-report-color) !important;
+  color: white !important;
+}
+
+.heatmap-table tbody tr.filtered-report-row > th.row-header-cell {
+  background-color: var(--filtered-report-color) !important;
+  color: white !important;
+}
+
+.enps-breakdown-table .filtered-report-row th,
+.enps-breakdown-table .filtered-report-row td {
+  background-color: var(--filtered-report-color);
+  color: #ffffff;
+}
+
 /* Row header cells */
 .heatmap-table tbody th.row-header-cell {
   background-color: var(--surface-muted-color);
@@ -682,12 +699,18 @@ table thead th {
   }
 }
 
-.comment-dump-question {
+.comment-dump-question,
+.retention-table-question,
+.dual-multiselect-question,
+.brand-affinity-question,
+.yes-no-question,
+.enps-question {
   font-family: var(--headings-font-family, sans-serif);
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-color);
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
 }
 
 .comment-count {
@@ -990,10 +1013,6 @@ table thead th {
   margin: 0 0 0.15rem;
 }
 
-.enps-table-slide .enps-question {
-  font-size: 0.85rem;
-  margin: 0 0 0.5rem;
-}
 
 .enps-breakdown-table {
   width: 100%;
@@ -1086,14 +1105,6 @@ table thead th {
   min-height: 0;
 }
 
-.retention-table-question {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-color);
-  line-height: 1.4;
-}
-
 .retention-table {
   font-size: 0.78rem;
   table-layout: fixed;
@@ -1147,14 +1158,6 @@ table thead th {
   min-height: 0;
 }
 
-.dual-multiselect-question {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-color);
-  line-height: 1.4;
-}
-
 .dual-multiselect-table {
   font-size: 0.8rem;
   flex: 1;
@@ -1199,13 +1202,6 @@ table thead th {
   flex: 1;
   gap: 1.25rem;
   min-height: 0;
-}
-
-.brand-affinity-question {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
-  color: var(--text-color);
-  line-height: 1.4;
 }
 
 .brand-affinity-table {

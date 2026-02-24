@@ -67,6 +67,30 @@
             </div>
           </div>
 
+          <div class="filter-toggle hidden" id="filter-toggle">
+            <label>
+              <input type="checkbox" id="enable-filter" />
+              <strong>Enable Filtered Report Comparison</strong>
+            </label>
+            <p class="filter-toggle-description">
+              Compare overall results with a filtered report of responses
+            </p>
+          </div>
+
+          <div id="filter-panel" class="filter-panel hidden">
+            <h3>Demographics Filters</h3>
+            <p class="filter-instructions">
+              Select one or more dimensions to filter by. All selected filters
+              must match (AND logic).
+            </p>
+            <p class="filter-tip">
+              <em>Hold Ctrl (Windows) or Cmd (Mac) to select multiple values
+              within each dimension.</em>
+            </p>
+            <div id="filter-dimensions"></div>
+            <div id="filter-match-count" class="filter-match-count hidden"></div>
+          </div>
+
           <button type="submit" class="btn btn-primary" id="upload-btn">
             Generate Report
           </button>

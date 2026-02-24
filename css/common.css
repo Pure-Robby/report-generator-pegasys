@@ -32,6 +32,7 @@
     --table-header-text: #ffffff;
     --table-accent-row-bg: #e0e7ff;
     --heatmap-highlight: #3b82f6;
+    --filtered-report-color: #0197FA;
   }
   
   * {
