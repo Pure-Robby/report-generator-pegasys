@@ -5,6 +5,7 @@ class SlideGenerator {
         if (!this.reportData) return;
 
         this.slideInstances = [];
+        this.tocEntries = [];
         this.totalSlideCount = 0;
         const tm = window.ThemeManager;
         const themeOptions = (tm && typeof tm.getDefaultSlideOptions === 'function')
@@ -21,6 +22,7 @@ class SlideGenerator {
 
     init() {
         this.generateSlides();
+        this.buildTOC();
         this.setupPageNavigation();
         this.setupExportButtons();
         this.setupBackButton();
@@ -159,10 +161,122 @@ class SlideGenerator {
             if (mergedOptions.pageNumber) {
                 this.totalSlideCount = Math.max(this.totalSlideCount, mergedOptions.pageNumber);
             }
+
+            const tocTitle = data.title || (type === 'cover' ? 'Cover' : type);
+            this.tocEntries.push({
+                pageNumber: mergedOptions.pageNumber || this.tocEntries.length,
+                title: tocTitle,
+                type: type,
+                id: slideElement.id
+            });
         } catch (error) {
             console.error(`Error creating ${type} slide:`, error);
             showToast(`Error creating slide: ${error.message}`, 'error');
         }
+    }
+
+    buildTOC() {
+        if (!this.tocEntries.length) return;
+
+        const groups = [];
+        this.tocEntries.forEach(entry => {
+            const last = groups[groups.length - 1];
+            if (last && last.title === entry.title) {
+                last.entries.push(entry);
+            } else {
+                groups.push({ title: entry.title, entries: [entry] });
+            }
+        });
+
+        const sidebar = document.createElement('nav');
+        sidebar.id = 'toc-sidebar';
+        sidebar.className = 'toc-sidebar collapsed';
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'toc-toggle-btn';
+        toggleBtn.setAttribute('aria-label', 'Toggle table of contents');
+        toggleBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>`;
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('collapsed');
+        });
+        sidebar.appendChild(toggleBtn);
+
+        document.addEventListener('click', (e) => {
+            if (!sidebar.classList.contains('collapsed') && !sidebar.contains(e.target)) {
+                sidebar.classList.add('collapsed');
+            }
+        });
+
+        sidebar.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        const content = document.createElement('div');
+        content.className = 'toc-content';
+
+        const heading = document.createElement('div');
+        heading.className = 'toc-header';
+        heading.innerHTML = '<h3>Contents</h3>';
+        content.appendChild(heading);
+
+        const list = document.createElement('ul');
+        list.className = 'toc-list';
+
+        groups.forEach(group => {
+            const li = document.createElement('li');
+            li.className = 'toc-item';
+            li.dataset.pages = group.entries.map(e => e.pageNumber).join(',');
+
+            const pageNum = document.createElement('span');
+            pageNum.className = 'toc-page-num';
+            pageNum.textContent = group.entries[0].pageNumber;
+
+            const title = document.createElement('span');
+            title.className = 'toc-title';
+            title.textContent = group.title;
+
+            li.appendChild(pageNum);
+            li.appendChild(title);
+
+            if (group.entries.length > 1) {
+                const count = document.createElement('span');
+                count.className = 'toc-count';
+                count.textContent = group.entries.length;
+                li.appendChild(count);
+            }
+
+            li.addEventListener('click', () => {
+                if (this.scrollToSlide) {
+                    this.scrollToSlide(group.entries[0].pageNumber);
+                }
+            });
+
+            list.appendChild(li);
+        });
+
+        content.appendChild(list);
+        sidebar.appendChild(content);
+        document.body.appendChild(sidebar);
+    }
+
+    updateActiveTocEntry(pageNumber) {
+        const items = document.querySelectorAll('.toc-item');
+        if (!items.length) return;
+
+        items.forEach(item => {
+            const pages = item.dataset.pages.split(',').map(Number);
+            if (pages.includes(pageNumber)) {
+                if (!item.classList.contains('active')) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            } else {
+                item.classList.remove('active');
+            }
+        });
     }
 
     setupBackButton() {
@@ -209,26 +323,19 @@ class SlideGenerator {
         const scrollToSlide = (pageNumber) => {
             const slideElement = document.getElementById(`slide-${pageNumber}`);
             if (slideElement) {
-                // Clear visibility map to prevent stale data
                 slideVisibility.clear();
-                
-                // Set navigating flag before updating UI
                 isNavigating = true;
                 currentPage = pageNumber;
                 updateUI(currentPage);
-                
-                // Scroll to the slide
+                this.updateActiveTocEntry(currentPage);
                 slideElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                
-                // Re-enable observer after scroll completes (smooth scroll typically takes 500-800ms)
-                // Use a longer timeout to ensure scroll is fully complete
                 setTimeout(() => {
                     isNavigating = false;
-                    // Force a check after navigation completes
                     slideVisibility.clear();
                 }, 500);
             }
         };
+        this.scrollToSlide = scrollToSlide;
 
         // Intersection Observer to detect which slide is most visible
         const observerOptions = {
@@ -275,10 +382,10 @@ class SlideGenerator {
                     }
                 });
 
-                // Only update if the most visible page is different and has significant visibility
                 if (mostVisiblePage !== currentPage && maxVisibility > 0.3) {
                     currentPage = mostVisiblePage;
                     updateUI(currentPage);
+                    this.updateActiveTocEntry(currentPage);
                 }
             }
         };
@@ -316,6 +423,7 @@ class SlideGenerator {
             if (mostVisiblePage !== currentPage) {
                 currentPage = mostVisiblePage;
                 updateUI(currentPage);
+                this.updateActiveTocEntry(currentPage);
             }
         }, 100);
 

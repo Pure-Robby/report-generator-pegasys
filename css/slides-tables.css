@@ -289,7 +289,8 @@ table thead th {
   background-color: var(--table-header-bg);
   color: var(--table-header-text);
   font-weight:600;
-  font-size:0.6rem;
+  font-size:0.7rem;
+  line-height: 1.1;
   text-transform:uppercase;
   height:140px;
   width: 32px;
@@ -326,7 +327,7 @@ table thead th {
 }
 /* Adjust rotated text width for shift indicator arrows */
 .heatmap-table.has-shift-indicators thead th.vertical-text .text-wrapper {
-  height: 32px;
+  height: 39px;
 }
 
 /* Engagement Index header - light blue */

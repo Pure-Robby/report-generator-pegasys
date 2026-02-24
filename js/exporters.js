@@ -243,11 +243,10 @@ async function captureSlideAsImage(slideElement, dimensions) {
         // Get the actual bounding rect to ensure we capture the full element
         const captureRect = slideElement.getBoundingClientRect();
         const canvas = await html2canvas(slideElement, {
-            scale: 2,
+            scale: 1.5,
             backgroundColor: '#ffffff',
             useCORS: true,
             logging: true, // Enable logging to debug - check console for errors
-            backgroundColor: null,
             allowTaint: true, // Allow local images
             removeContainer: false,
             width: naturalWidth,
@@ -290,6 +289,9 @@ async function captureSlideAsImage(slideElement, dimensions) {
                 clonedSlide.style.margin = '0';
                 clonedSlide.style.transform = 'none';
                 clonedSlide.style.zIndex = '1';
+                // White background and no border-radius so captured image has no black corners
+                clonedSlide.style.backgroundColor = '#ffffff';
+                clonedSlide.style.borderRadius = '0';
             
                 // ---- keep your existing background-image preservation logic below ----
                 const elementsWithBg = clonedSlide.querySelectorAll('.slide-title, .slide-divider');
@@ -335,7 +337,7 @@ async function captureSlideAsImage(slideElement, dimensions) {
         
         // Convert canvas to base64 image
         // const imageDataUrl = canvas.toDataURL('image/png', 1.0);
-        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.85); //jpeg produces smaller files
+        const imageDataUrl = canvas.toDataURL('image/jpeg', 0.8); //jpeg produces smaller files
         
         if (!imageDataUrl || imageDataUrl === 'data:,') {
             throw new Error('Failed to generate image data from slide');
