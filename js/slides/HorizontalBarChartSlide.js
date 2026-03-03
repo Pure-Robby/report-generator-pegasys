@@ -198,9 +198,50 @@ class HorizontalBarChartSlide extends SlideBase {
             if (s.isDimensionAggregate) aggregateIndex = i;
         });
 
+        // Custom plugin: shades the aggregate row and draws a separator line
+        // between it and the first statement row
+        var dimensionSeparatorPlugin = {
+            id: 'dimensionSeparator',
+            beforeDatasetsDraw: function (chart) {
+                if (aggregateIndex < 0) return;
+                var yAxis = chart.scales.y;
+                if (!yAxis) return;
+                var halfBand = yAxis.getPixelForValue(1) - yAxis.getPixelForValue(0);
+                var yCenter = yAxis.getPixelForValue(aggregateIndex);
+                var yTop = yCenter - Math.abs(halfBand) / 2;
+                var yBottom = yCenter + Math.abs(halfBand) / 2;
+                var dCtx = chart.ctx;
+                dCtx.save();
+                dCtx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+                dCtx.fillRect(0, yTop, chart.chartArea.right, yBottom - yTop);
+                dCtx.restore();
+            },
+            afterDraw: function (chart) {
+                if (aggregateIndex < 0 || aggregateIndex >= statements.length - 1) return;
+                var yAxis = chart.scales.y;
+                if (!yAxis) return;
+                var y0 = yAxis.getPixelForValue(aggregateIndex);
+                var y1 = yAxis.getPixelForValue(aggregateIndex + 1);
+                var yMid = (y0 + y1) / 2;
+                var xMin = 0;
+                var xMax = chart.chartArea.right;
+                var dCtx = chart.ctx;
+                dCtx.save();
+                dCtx.beginPath();
+                dCtx.setLineDash([]);
+                dCtx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+                dCtx.lineWidth = 1.5;
+                dCtx.moveTo(xMin, yMid);
+                dCtx.lineTo(xMax, yMid);
+                dCtx.stroke();
+                dCtx.restore();
+            }
+        };
+
         var config = {
             type: 'bar',
             data: { labels: labels, datasets: datasets },
+            plugins: [dimensionSeparatorPlugin],
             options: {
                 indexAxis: 'y',
                 responsive: true,
@@ -249,16 +290,7 @@ class HorizontalBarChartSlide extends SlideBase {
                                 return this.getLabelForValue(value);
                             }
                         },
-                        grid: {
-                            display: true,
-                            drawTicks: false,
-                            color: function (context) {
-                                if (aggregateIndex >= 0 && context.index === aggregateIndex) {
-                                    return 'rgba(0,0,0,0.25)';
-                                }
-                                return 'transparent';
-                            }
-                        }
+                        grid: { display: false }
                     }
                 }
             }

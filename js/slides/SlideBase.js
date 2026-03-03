@@ -117,16 +117,23 @@ class SlideBase {
 
     const footerLeft = document.createElement('div');
     footerLeft.className = 'slide-page-footer-left';
-    footerLeft.innerHTML = (
-      this.options.footerText ||
-      'Powered by Pure Survey (PTY) Ltd © <span id="year"></span>. Rights Reserved'
-    ).replace('<span id="year"></span>', new Date().getFullYear());
+    const logoImg = document.createElement('img');
+    logoImg.src = 'assets/pure-survey-logo.png';
+    logoImg.alt = 'Pure Survey Logo';
+    logoImg.height = 32;
+    footerLeft.appendChild(logoImg);
+
+    const footerCenter = document.createElement('div');
+    footerCenter.className = 'slide-page-footer-center';
+    footerCenter.textContent = this.options.footerText ||
+      `Powered by Pure Survey (PTY) Ltd \u00a9 ${new Date().getFullYear()}. Rights Reserved`;
 
     const footerRight = document.createElement('div');
     footerRight.className = 'slide-page-footer-right';
     footerRight.textContent = pageNumber;
 
     footer.appendChild(footerLeft);
+    footer.appendChild(footerCenter);
     footer.appendChild(footerRight);
 
     return footer;

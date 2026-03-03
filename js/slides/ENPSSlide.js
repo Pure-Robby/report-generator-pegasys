@@ -79,7 +79,7 @@ class ENPSSlide extends SlideBase {
             if (row.isOverall && index === 0) {
                 tr.classList.add('enps-overall-row');
             }
-            const isInsufficientSample = Boolean(row && !row.isOverall && Number(row.n) <= 3);
+            const isInsufficientSample = Boolean(row && !row.isOverall && Number(row.n) < 3);
 
             const nameCell = document.createElement('th');
             nameCell.textContent = row.name || 'Unknown';

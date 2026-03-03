@@ -795,6 +795,10 @@
     var allYears = dataSet.allYears || [];
     var allYearLabels = allYears.map(function (e) { return e.year; });
 
+    var _theme = window.ThemeManager && window.ThemeManager.getActiveTheme
+      ? window.ThemeManager.getActiveTheme() : null;
+    var showShiftIndicators = hasPreviousData && (!_theme || _theme.heatmapShiftIndicators !== false);
+
     if (!hasPreviousData) {
       showToast('Previous year sheet not found or empty. Showing current year only.', 'warning');
     }
@@ -892,7 +896,7 @@
 
     heatmapConfigs.forEach(function (config) {
       try {
-        var hmData = calculateHeatmapData(dataSet, config.type, { showShiftIndicators: hasPreviousData });
+        var hmData = calculateHeatmapData(dataSet, config.type, { showShiftIndicators: showShiftIndicators });
 
         if (reportData.filteredData) {
           var filteredHm = calculateHeatmapData(reportData.filteredData, config.type, { showShiftIndicators: false });
@@ -912,7 +916,7 @@
           title: config.title,
           columnHeaders: hmData.columnHeaders,
           rowData: hmData.rows,
-          showShiftIndicators: hasPreviousData
+          showShiftIndicators: showShiftIndicators
         }, container, { pageNumber: slideNumber++ });
       } catch (err) {
         console.error('Heatmap (' + config.type + ') failed:', err);

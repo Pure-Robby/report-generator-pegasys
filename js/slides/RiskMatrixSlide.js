@@ -71,7 +71,7 @@ class RiskMatrixSlide extends SlideBase {
         
         rows.forEach(dept => {
             const row = document.createElement('tr');
-            const isInsufficientSample = Boolean(dept && !dept.isOverall && Number(dept.n) <= 3);
+            const isInsufficientSample = Boolean(dept && !dept.isOverall && Number(dept.n) < 3);
             
             // Department name
             const thName = document.createElement('th');

@@ -478,6 +478,10 @@ async function exportToPPT(reportData, slideInstances) {
             }
         });
 
+        // Ensure all web fonts (Google Fonts etc.) are fully loaded before
+        // html2canvas captures slides — prevents fallback system fonts being used
+        await document.fonts.ready;
+
         // Small delay to allow charts/layouts to settle
         await new Promise(resolve => setTimeout(resolve, 500));
 

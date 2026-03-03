@@ -106,7 +106,7 @@ class PegasysHeatmapSlide extends SlideBase {
 
       var tr = document.createElement('tr');
       if (row.isFiltered) tr.className = 'filtered-report-row';
-      var insufficient = Boolean(row && !row.isOverall && !row.isFiltered && Number(row.sampleSize) <= 3);
+      var insufficient = Boolean(row && !row.isOverall && !row.isFiltered && Number(row.sampleSize) < 3);
 
       var rowHeader = document.createElement('th');
       rowHeader.className = 'row-header-cell';

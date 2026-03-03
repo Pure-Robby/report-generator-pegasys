@@ -203,7 +203,7 @@ class HeatMapSlide extends SlideBase {
             }
 
             const tr = document.createElement('tr');
-            const isInsufficientSample = Boolean(row && !row.isOverall && Number(row.sampleSize) <= 3);
+            const isInsufficientSample = Boolean(row && !row.isOverall && Number(row.sampleSize) < 3);
             
             // Row header with name only
             const rowHeader = document.createElement('th');

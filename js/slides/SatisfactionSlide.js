@@ -139,8 +139,8 @@ class SatisfactionSlide extends SlideBase {
             // Satisfaction data uses `count` as the sample size.
             const cells = row.querySelectorAll('td');
             if (cells.length === 5) {
-                const currentInsufficient = Boolean(currentItem && Number(currentItem.count) <= 3);
-                const previousInsufficient = Boolean(previousItem && Number(previousItem.count) <= 3);
+                const currentInsufficient = Boolean(currentItem && Number(currentItem.count) < 3);
+                const previousInsufficient = Boolean(previousItem && Number(previousItem.count) < 3);
 
                 if (currentInsufficient) {
                     cells[1].textContent = '';

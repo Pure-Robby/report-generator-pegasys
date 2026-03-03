@@ -52,9 +52,19 @@
 
 .slide-page-footer-left {
     flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.slide-page-footer-center {
+    flex: 2;
+    text-align: center;
 }
 
 .slide-page-footer-right {
+    flex: 1;
+    text-align: right;
     font-weight: 600;
     color: #1e293b;
 }

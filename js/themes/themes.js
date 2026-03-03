@@ -61,6 +61,7 @@
           { label: 'STRONGLY DISAGREE', pct: '0%' }
         ]
       },
+      heatmapShiftIndicators: false,
       engagementLegend: {
         layout: 'table',
         thresholds: [50, 65, 85],
@@ -68,7 +69,7 @@
           { range: '≥85', category: 'Actively Engaged', description: 'Exceptionally high levels of motivation and passion which will help move the company forward', class: 'engagement-peg-1' },
           { range: '65-&lt;85', category: 'Engaged', description: 'High levels of motivation and care which will drive growth and high performance', class: 'engagement-peg-2' },
           { range: '51-&lt;65', category: 'Ambivalent', description: 'Adequate levels of motivation which will contribute to maintenance of current operations', class: 'engagement-peg-3' },
-          { range: '&lt;50', category: 'Disengaged', description: 'Some indicators of unhappiness and dissatisfaction which are impacting poorly on motivation', class: 'engagement-peg-4' }
+          { range: '&lt;=50', category: 'Disengaged', description: 'Some indicators of unhappiness and dissatisfaction which are impacting poorly on motivation', class: 'engagement-peg-4' }
         ]
       },
       riskLegend: {

@@ -38,15 +38,17 @@ class LegendComponent {
                         </div>
                         <span>Shows movement since previous survey</span>
                     </div>
-                    <div class="legend-item">
-                        <span>|</span>
-                        <span>n = Sample size </span>
-                        <span>|</span>
-                        <span>Please Note: No data shown for a group of 3 or less people</span>
-                    </div>
                 </div>
             `;
     }
+
+    html += `
+                <div class="legend-sample-note">
+                    <span>n = Sample size</span>
+                    <span>|</span>
+                    <span>Please Note: No data shown for a group of less than 3 people</span>
+                </div>
+            `;
 
     html += '</div>';
     return html;

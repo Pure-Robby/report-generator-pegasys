@@ -42,7 +42,7 @@ class ColorMapper {
     static _engagementBand4(percentage, thresholds) {
         if (percentage >= thresholds[2]) return 0;
         if (percentage >= thresholds[1]) return 1;
-        if (percentage >= thresholds[0]) return 2;
+        if (percentage > thresholds[0]) return 2;
         return 3;
     }
 
