@@ -87,7 +87,7 @@
 }
 
 /* Thank You Slide */
-.thank-you-slide {
+.slide.thank-you-slide {
     background: #4b4b55;
     display: flex;
     align-items: center;

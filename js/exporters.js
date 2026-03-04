@@ -242,9 +242,11 @@ async function captureSlideAsImage(slideElement, dimensions) {
         // Capture the slide - element is now at top of viewport
         // Get the actual bounding rect to ensure we capture the full element
         const captureRect = slideElement.getBoundingClientRect();
+        const slideBg = window.getComputedStyle(slideElement).backgroundColor;
+        const captureBg = (slideBg && slideBg !== 'rgba(0, 0, 0, 0)' && slideBg !== 'transparent') ? slideBg : '#ffffff';
         const canvas = await html2canvas(slideElement, {
             scale: 1.5,
-            backgroundColor: '#ffffff',
+            backgroundColor: captureBg,
             useCORS: true,
             logging: true, // Enable logging to debug - check console for errors
             allowTaint: true, // Allow local images
@@ -289,8 +291,8 @@ async function captureSlideAsImage(slideElement, dimensions) {
                 clonedSlide.style.margin = '0';
                 clonedSlide.style.transform = 'none';
                 clonedSlide.style.zIndex = '1';
-                // White background and no border-radius so captured image has no black corners
-                clonedSlide.style.backgroundColor = '#ffffff';
+                // Preserve the slide's actual background color (no black corners, but keep custom backgrounds)
+                clonedSlide.style.backgroundColor = captureBg;
                 clonedSlide.style.borderRadius = '0';
             
                 // ---- keep your existing background-image preservation logic below ----
