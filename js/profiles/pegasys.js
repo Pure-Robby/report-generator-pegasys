@@ -444,7 +444,10 @@
     { grouping: 'Other opportunities',  leavingCol: 157, stayingCol: 174 },
     { grouping: 'Having a voice',       leavingCol: 158, stayingCol: 175 },
     { grouping: 'The future',           leavingCol: 159, stayingCol: 176 },
-    { grouping: 'Belonging',            leavingCol: 160, stayingCol: 177 }
+    { grouping: 'Belonging',            leavingCol: 160, stayingCol: 177 },
+    { grouping: 'Not Leaving',          leavingCol: 161, stayingCol: 178 },
+    { grouping: 'My Colleagues',        leavingCol: 162, stayingCol: 179 },
+    { grouping: 'Other',                leavingCol: 163, stayingCol: 180 }
   ];
 
   function stripGroupingPrefix(raw) {
@@ -830,7 +833,8 @@
       title: 'Methodology',
       invitations: methodologyInvitations,
       uniqueResponses: currentData.totalResponses,
-      responseRate: methodologyResponseRate
+      responseRate: methodologyResponseRate,
+      isFiltered: Boolean(reportData.filteredData)
     }, container, { pageNumber: slideNumber++ });
 
     // 3. Engagement Model

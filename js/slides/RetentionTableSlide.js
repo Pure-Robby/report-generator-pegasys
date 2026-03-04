@@ -71,7 +71,7 @@ class RetentionTableSlide extends SlideBase {
     const note = document.createElement('p');
     note.className = 'retention-table-footer-note';
     note.textContent =
-      'Response percentage is based on total of option selected divided by total sample of ' +
+      'Each percentage is the proportion of respondents who selected that option, out of a total sample of ' +
       this.data.sampleSize + ' respondents.';
     return note;
   }

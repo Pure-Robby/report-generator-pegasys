@@ -73,14 +73,13 @@ class MethodologySlide extends SlideBase {
             ? ColorMapper.buildEngagementLegendFromConfig(engagementConfig)
             : '';
 
-        body.innerHTML = `
-            <h3>Confidentiality</h3>
-            <p class="mb-3">All survey responses and scores are hosted by Pure Survey and your individual feedback will remain completely anonymous.  All data that is 
-            collected and reported on by Pure Survey is stored in a secure database, on a secure server platform, ensuring confidentiality and integrity of the data.
-            </p>
-
-            <p class="mb-3">Pure Survey is aligned with SAMRA (South African Marketing Research Association) and strives to promote and maintain professional standards in research.</p>
-            
+        const hideDistribution = Boolean(
+            this.data.isFiltered &&
+            theme &&
+            theme.methodology &&
+            theme.methodology.hideDistributionWhenFiltered
+        );
+        const distributionSection = hideDistribution ? '' : `
             <h3>Distribution Details</h3>
             <div class="kpi-grid mb-3" role="list" aria-label="Survey distribution KPIs">
                 <div class="kpi-card" role="listitem">
@@ -99,6 +98,17 @@ class MethodologySlide extends SlideBase {
                     <div class="kpi-subtext">Overall response rate</div>
                 </div>
             </div>
+            `;
+
+        body.innerHTML = `
+            <h3>Confidentiality</h3>
+            <p class="mb-3">All survey responses and scores are hosted by Pure Survey and your individual feedback will remain completely anonymous.  All data that is 
+            collected and reported on by Pure Survey is stored in a secure database, on a secure server platform, ensuring confidentiality and integrity of the data.
+            </p>
+
+            <p class="mb-3">Pure Survey is aligned with SAMRA (South African Marketing Research Association) and strives to promote and maintain professional standards in research.</p>
+            
+            ${distributionSection}
 
             <h3>Satisfaction Index (%)</h3>
             <p class="mb-3">Statements with subsequent agreement factors, which made use of a ${(scale && scale.points) || 5} point scale. Statements were selected as the base for the Engagement Index. 

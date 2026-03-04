@@ -20,7 +20,8 @@
         textPlacement: 'right'
       },
       methodology: {
-        invitations: 146
+        invitations: 146,
+        hideDistributionWhenFiltered: true
       },
       colors: {
         primary: '#4b4b55', 
@@ -39,7 +40,7 @@
         filteredReport: '#0197FA'
       },
       fonts: {
-        body: "'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+        body: "'Open Sans', sans-serif",
         headings: "'Merriweather', serif"
       },
       assets: {

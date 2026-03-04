@@ -228,8 +228,9 @@
     min-height: 90px;
 }
 
+/* Precomputed 55% --secondary-color + 45% --border-color for html2canvas compatibility (no color-mix) */
 .kpi-card--accent {
-    border-color: color-mix(in srgb, var(--secondary-color) 55%, var(--border-color));
+    border-color: #ef9f6d;
 }
 
 .kpi-label {
