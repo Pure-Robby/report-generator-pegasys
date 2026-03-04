@@ -1053,6 +1053,9 @@
     } catch (err) {
       console.error('Comments failed:', err);
     }
+
+    // Thank you (last slide)
+    generator.addSlide('thank-you', {title: 'Thank You', logoPath: 'assets/pegasys/pegasys-logo-v2.png' }, container, {  pageNumber: slideNumber++, logoPath: 'assets/pegasys/pegasys-logo-v2.png' });
   }
 
   // ── Register ──────────────────────────────────────────────────────────────
