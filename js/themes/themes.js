@@ -20,7 +20,7 @@
         textPlacement: 'right'
       },
       methodology: {
-        invitations: 146,
+        invitations: 153,
         hideDistributionWhenFiltered: true
       },
       colors: {
