@@ -174,6 +174,8 @@
         label: entry.year,
         scores: cols.map(function (c) { return averageColumn(entry.rows, c); })
       };
+    }).filter(function (s) {
+      return s.scores.some(function (v) { return v !== null; });
     });
 
     return { categories: categories, series: series };
@@ -236,7 +238,7 @@
     var yearEntries = getAllYearRows(excelData);
     var currentRows = excelData.current.rows;
     var previousRows = excelData.previous ? excelData.previous.rows : null;
-    var relevantEntries = yearEntries.slice(0, 2); // [current, previous]
+    var relevantEntries = yearEntries.slice(0, 2).filter(function (entry) { return entry.rows && entry.rows.length > 0; });
     var yearLabels = relevantEntries.map(function (e) { return e.year; });
 
     var statements = [];
@@ -276,11 +278,15 @@
 
   function calculateDimensionStatements(excelData) {
     var yearEntries = getAllYearRows(excelData);
-    var yearLabels = yearEntries.map(function (e) { return e.year; });
+    var yearLabels = yearEntries
+      .filter(function (entry) { return entry.rows && entry.rows.length > 0; })
+      .map(function (e) { return e.year; });
+
+    var activeEntries = yearEntries.filter(function (entry) { return entry.rows && entry.rows.length > 0; });
 
     var dimensions = DIMENSIONS.map(function (dim) {
       var aggScores = {};
-      yearEntries.forEach(function (entry) {
+      activeEntries.forEach(function (entry) {
         aggScores[entry.year] = averageColumn(entry.rows, dim.aggCol);
       });
 
@@ -293,7 +299,7 @@
       var questionStatements = dim.questionCols.map(function (colIdx) {
         var raw = excelData.current.questionHeaders[colIdx];
         var scores = {};
-        yearEntries.forEach(function (entry) {
+        activeEntries.forEach(function (entry) {
           scores[entry.year] = averageColumn(entry.rows, colIdx);
         });
         return {
@@ -439,15 +445,16 @@
     { grouping: 'My manager',           leavingCol: 151, stayingCol: 169 },
     { grouping: 'My pay',               leavingCol: 152, stayingCol: 170 },
     { grouping: 'My recognition',       leavingCol: 153, stayingCol: 171 },
+    { grouping: 'Reality of the role',  leavingCol: 154, stayingCol: null },
     { grouping: 'My wellbeing',         leavingCol: 155, stayingCol: 172 },
     { grouping: 'My work',              leavingCol: 156, stayingCol: 173 },
     { grouping: 'Other opportunities',  leavingCol: 157, stayingCol: 174 },
     { grouping: 'Having a voice',       leavingCol: 158, stayingCol: 175 },
     { grouping: 'The future',           leavingCol: 159, stayingCol: 176 },
     { grouping: 'Belonging',            leavingCol: 160, stayingCol: 177 },
-    { grouping: 'Not Leaving',          leavingCol: 161, stayingCol: 178 },
-    { grouping: 'My Colleagues',        leavingCol: 162, stayingCol: 179 },
-    { grouping: 'Other',                leavingCol: 163, stayingCol: 180 }
+    { grouping: 'Other',                leavingCol: 161, stayingCol: 179 },
+    { grouping: 'Not leaving',          leavingCol: 162, stayingCol: null },
+    { grouping: 'My colleagues',        leavingCol: null, stayingCol: 178 }
   ];
 
   function stripGroupingPrefix(raw) {
@@ -502,10 +509,10 @@
     var tableRows = RETENTION_PAIRS.map(function (pair) {
       return {
         grouping: pair.grouping + ':',
-        leavingStatement:  stripGroupingPrefix(headers[pair.leavingCol]),
-        leavingPercent:    Math.round((countSelected(pair.leavingCol)  / n) * 100),
-        stayingStatement:  stripGroupingPrefix(headers[pair.stayingCol]),
-        stayingPercent:    Math.round((countSelected(pair.stayingCol) / n) * 100)
+        leavingStatement:  pair.leavingCol != null ? stripGroupingPrefix(headers[pair.leavingCol]) : '',
+        leavingPercent:    pair.leavingCol != null ? Math.round((countSelected(pair.leavingCol) / n) * 100) : null,
+        stayingStatement:  pair.stayingCol != null ? stripGroupingPrefix(headers[pair.stayingCol]) : '',
+        stayingPercent:    pair.stayingCol != null ? Math.round((countSelected(pair.stayingCol) / n) * 100) : null
       };
     });
 
@@ -806,6 +813,9 @@
       showToast('Previous year sheet not found or empty. Showing current year only.', 'warning');
     }
 
+    var isSingleFilter = Boolean(reportData.filteredData && reportData.filters && reportData.filters.length === 1);
+    var singleFilterLabel = isSingleFilter ? reportData.filters[0].values.join(', ') : null;
+
     var theme = (window.ThemeRegistry && window.ThemeRegistry.getTheme && reportData.theme)
       ? window.ThemeRegistry.getTheme(reportData.theme) : null;
     var seriesColors = (theme && theme.charts && theme.charts.seriesColors) || null;
@@ -862,10 +872,15 @@
 
     // 5. Bar Chart – main engagement categories (N-series)
     try {
-      var barData = calculateBarChartData(dataSet);
+      var barSource = isSingleFilter ? reportData.filteredData : dataSet;
+      var barData = calculateBarChartData(barSource);
+
+      if (isSingleFilter) {
+        barData.categories[0] = singleFilterLabel + '\nOverall';
+      }
 
       var barSeriesColors = seriesColors ? seriesColors.slice() : null;
-      if (reportData.filteredData) {
+      if (!isSingleFilter && reportData.filteredData) {
         var filteredBarData = calculateBarChartData(reportData.filteredData);
         barData.series.push({
           label: 'Filtered Report',
@@ -895,14 +910,18 @@
       { type: 'age',         title: 'Engagement by Age' },
       { type: 'tenure',      title: 'Engagement by Tenure' },
       { type: 'gender',      title: 'Engagement by Gender' },
-      { type: 'race',        title: 'Engagement by Race' }
+      { type: 'race',        title: 'Engagement by Racial Group' }
     ];
 
     heatmapConfigs.forEach(function (config) {
+      if (isSingleFilter && config.type === reportData.filters[0].key) return;
       try {
-        var hmData = calculateHeatmapData(dataSet, config.type, { showShiftIndicators: showShiftIndicators });
+        var hmSource = isSingleFilter ? reportData.filteredData : dataSet;
+        var hmData = calculateHeatmapData(hmSource, config.type, { showShiftIndicators: showShiftIndicators });
 
-        if (reportData.filteredData) {
+        if (isSingleFilter) {
+          hmData.rows[0].name = singleFilterLabel;
+        } else if (reportData.filteredData) {
           var filteredHm = calculateHeatmapData(reportData.filteredData, config.type, { showShiftIndicators: false });
           var filteredOverall = filteredHm.rows[0];
           var filteredRow = {
@@ -929,7 +948,8 @@
 
     // 7. Top & Bottom Statements (multi-year)
     try {
-      var statementsData = calculateTopBottomStatements(dataSet, 5);
+      var statementsSource = isSingleFilter ? reportData.filteredData : dataSet;
+      var statementsData = calculateTopBottomStatements(statementsSource, 5);
       generator.addSlide('top-bottom-statements', {
         title: 'Top & Bottom Scoring Statements',
         topStatements: statementsData.topStatements,
@@ -944,7 +964,8 @@
     // 8. Horizontal bar chart per dimension (N-series + aggregate)
     var percentageSource = reportData.filteredData || dataSet;
     try {
-      var dimData = calculateDimensionStatements(dataSet);
+      var dimSource = isSingleFilter ? reportData.filteredData : dataSet;
+      var dimData = calculateDimensionStatements(dimSource);
       dimData.dimensions.forEach(function (dim) {
         generator.addSlide('horizontal-barchart', {
           title: dim.name + ' \u2013 Statement Scores',
@@ -1018,10 +1039,18 @@
 
     // 9. eNPS Table
     try {
-      var enpsData = calculateEnpsTableData(dataSet, 'practice');
+      var enpsSource = isSingleFilter ? reportData.filteredData : dataSet;
+      var enpsData = calculateEnpsTableData(enpsSource, 'practice');
+
+      if (isSingleFilter) {
+        enpsData.overallRow.label = singleFilterLabel;
+        if (reportData.filters[0].key === 'practice') {
+          enpsData.breakdownRows = [];
+        }
+      }
 
       var enpsFilteredRow = null;
-      if (reportData.filteredData) {
+      if (!isSingleFilter && reportData.filteredData) {
         var filteredEnps = calculateEnpsTableData(reportData.filteredData, 'practice');
         enpsFilteredRow = Object.assign({}, filteredEnps.overallRow, { label: 'Filtered Report' });
       }
