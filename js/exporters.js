@@ -1,5 +1,25 @@
 // Export functions for PPT and PDF
 
+const FONT_FACES = [
+    '300 1em "Open Sans"',  'italic 300 1em "Open Sans"',
+    '400 1em "Open Sans"',  'italic 400 1em "Open Sans"',
+    '500 1em "Open Sans"',  'italic 500 1em "Open Sans"',
+    '600 1em "Open Sans"',  'italic 600 1em "Open Sans"',
+    '700 1em "Open Sans"',  'italic 700 1em "Open Sans"',
+    '800 1em "Open Sans"',  'italic 800 1em "Open Sans"',
+    '600 1em "Merriweather"',
+    '700 1em "Merriweather"',
+];
+
+const waitForFonts = () => Promise.all(
+    FONT_FACES.map(face =>
+        Promise.race([
+            document.fonts.load(face),
+            new Promise(r => setTimeout(r, 5000)),
+        ])
+    )
+);
+
 /**
  * Capture a slide element as an image using html2canvas
  * @param {HTMLElement} slideElement - The slide DOM element to capture
@@ -480,9 +500,11 @@ async function exportToPPT(reportData, slideInstances) {
             }
         });
 
-        // Ensure all web fonts (Google Fonts etc.) are fully loaded before
-        // html2canvas captures slides — prevents fallback system fonts being used
-        await document.fonts.ready;
+        // Actively load every font face before html2canvas captures anything.
+        // document.fonts.load() triggers the download and resolves only when
+        // the specific face is available; the 5 s race prevents a missing file
+        // from hanging the export.
+        await waitForFonts();
 
         // Small delay to allow charts/layouts to settle
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -625,7 +647,9 @@ async function exportToPDF(reportData) {
         slide.style.display = 'flex';
         slide.style.visibility = 'visible';
       });
-  
+
+      await waitForFonts();
+
       await new Promise(r => setTimeout(r, 300));
   
       // Determine page size from first slide’s rendered size

@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fontsource/merriweather": "^5.2.11",
+    "@fontsource/open-sans": "^5.2.7",
     "xlsx": "^0.18.5"
   }
 }
