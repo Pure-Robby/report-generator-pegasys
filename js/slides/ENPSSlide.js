@@ -82,6 +82,7 @@ class ENPSSlide extends SlideBase {
             const isInsufficientSample = Boolean(row && !row.isOverall && Number(row.n) < 3);
 
             const nameCell = document.createElement('th');
+            nameCell.classList.add('text-start');
             nameCell.textContent = row.name || 'Unknown';
             tr.appendChild(nameCell);
 

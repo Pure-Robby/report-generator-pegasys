@@ -23,10 +23,7 @@
  *   7   Nationality
  *   8   Job Level
  *   9   Overall engagement score (%)
- *  10   Organisation Drivers aggregate (%)
- *  11   Enablers aggregate (%)
- *  12   Commitment aggregate (%)
- *  13   Effort and Retention aggregate (%)
+ *  10–13 Group aggregates (not used directly; group scores are derived from dimension averages)
  *  14   (blank separator)
  *  15+  Dimension aggregates + individual question scores
  * 181-185  Comments (KEEP, START, STOP, most improvement, least improvement)
@@ -50,10 +47,6 @@
     NATIONALITY: 7,
     JOB_LEVEL: 8,
     OVERALL: 9,
-    ORG_DRIVERS: 10,
-    ENABLERS: 11,
-    COMMITMENT: 12,
-    EFFORT_RETENTION: 13,
     NPS: 186
   };
 
@@ -61,12 +54,19 @@
   const COMMENT_CHARS_PER_LINE = 178;
   const COMMENT_MAX_LINES_PER_SLIDE = 28;
 
+  // ── Non-standard questions (multi-select, yes/no) ─────────────────────────
+  const NON_STANDARD_QUESTIONS = [
+    { name: 'Brand Affinity', group: 'Organisation Drivers', questionCols: [20, 26, 32] },
+    { name: 'Management',     group: 'Enablers',             questionCols: [63, 82] },
+    { name: 'Retention',      group: 'Effort & Retention',   questionCols: [146, 164] }
+  ];
+
   // ── Groups (high-level pillars with pre-calculated aggregates) ────────────
   const GROUPS = [
-    { name: 'Organisation Drivers', col: COL.ORG_DRIVERS },
-    { name: 'Enablers',            col: COL.ENABLERS },
-    { name: 'Commitment',          col: COL.COMMITMENT },
-    { name: 'Effort & Retention',  col: COL.EFFORT_RETENTION }
+    { name: 'Organisation Drivers' },
+    { name: 'Enablers' },
+    { name: 'Commitment' },
+    { name: 'Effort & Retention' }
   ];
 
   // ── Dimensions (sub-categories with aggregate + scored question columns) ──
@@ -166,14 +166,18 @@
 
   function calculateBarChartData(excelData) {
     var categories = ['Pegasys\nOverall'].concat(GROUPS.map(function (g) { return g.name.replace(/ & /g, ' &\n'); }));
-    var cols = [COL.OVERALL].concat(GROUPS.map(function (g) { return g.col; }));
     var yearEntries = getAllYearRows(excelData);
 
     var series = yearEntries.map(function (entry) {
-      return {
-        label: entry.year,
-        scores: cols.map(function (c) { return averageColumn(entry.rows, c); })
-      };
+      var overallScore = averageColumn(entry.rows, COL.OVERALL);
+      var groupScores = GROUPS.map(function (g) {
+        var dimAggCols = DIMENSIONS.filter(function (d) { return d.group === g.name; }).map(function (d) { return d.aggCol; });
+        var dimAvgs = dimAggCols.map(function (c) { return averageColumn(entry.rows, c); }).filter(function (v) { return v !== null; });
+        if (!dimAvgs.length) return null;
+        return Math.round(dimAvgs.reduce(function (a, b) { return a + b; }, 0) / dimAvgs.length);
+      });
+      var scores = [overallScore].concat(groupScores);
+      return { label: entry.year, scores: scores };
     }).filter(function (s) {
       return s.scores.some(function (v) { return v !== null; });
     });
@@ -331,24 +335,37 @@
       };
     }).filter(function (d) { return d.questions.length > 0; });
 
-    var COMMENT_LABELS = ['Continue', 'Start', 'Stop', 'Most Improvement', 'Least Improvement'];
-    var commentDims = COMMENT_COLS.map(function (col, i) {
-      var q = cleanQuestionText(headers[col]);
-      return { name: COMMENT_LABELS[i], group: 'Comments', questions: q ? [q] : [] };
-    }).filter(function (d) { return d.questions.length > 0; });
-
-    var enpsQ = cleanQuestionText(headers[COL.NPS])
-      || "What is the likelihood that you would recommend Pegasys as a 'great place to work' to friends and family?";
-    var enpsDim = { name: 'eNPS', group: 'Employee Net Promoter Score', questions: [enpsQ] };
-
-    allDimensions = allDimensions.concat(commentDims).concat([enpsDim]);
-
     var perPage = 6;
     var pages = [];
     for (var i = 0; i < allDimensions.length; i += perPage) {
       pages.push(allDimensions.slice(i, i + perPage));
     }
     return pages;
+  }
+
+  function buildNonStandardQuestionDimensions(excelData) {
+    var headers = excelData.current.questionHeaders || [];
+    return NON_STANDARD_QUESTIONS.map(function (q) {
+      var questions = q.questionCols
+        .map(function (col) { return cleanQuestionText(headers[col]); })
+        .filter(Boolean);
+      return { name: q.name, group: q.group, questions: questions };
+    });
+  }
+
+  function buildCommentQuestionDimensions(excelData) {
+    var headers = excelData.current.questionHeaders || [];
+    var COMMENT_LABELS = ['Continue', 'Start', 'Stop', 'Most Improvement', 'Least Improvement'];
+    var commentDims = COMMENT_COLS.map(function (col, i) {
+      var q = cleanQuestionText(headers[col]);
+      return { name: COMMENT_LABELS[i], group: 'Comments', questions: q ? [q + ' (Open text)'] : [] };
+    }).filter(function (d) { return d.questions.length > 0; });
+
+    var enpsQ = cleanQuestionText(headers[COL.NPS])
+      || "What is the likelihood that you would recommend Pegasys as a 'great place to work' to friends and family?";
+    var enpsDim = { name: 'eNPS', group: 'Employee Net Promoter Score', questions: [enpsQ + ' (Scale: 0\u201310)'] };
+
+    return commentDims.concat([enpsDim]);
   }
 
   function calculateEnpsTableData(excelData, breakdownType) {
@@ -868,6 +885,32 @@
     } catch (err) {
       console.error('Questions slides failed:', err);
       showToast('Survey questions could not be generated: ' + err.message, 'error');
+    }
+
+    // 4b. Open text comment questions + eNPS
+    try {
+      generator.addSlide('questions', {
+        title: 'Survey Questions \u2013 Additional Formats',
+        dimensions: buildCommentQuestionDimensions(dataSet),
+        descriptionText: 'The below questions are free text comments and eNPS.',
+        showRatingScale: false
+      }, container, { pageNumber: slideNumber++ });
+    } catch (err) {
+      console.error('Comment questions slide failed:', err);
+      showToast('Comment questions could not be generated: ' + err.message, 'error');
+    }
+
+    // 4c. Additional format questions (multi-select, yes/no)
+    try {
+      generator.addSlide('questions', {
+        title: 'Survey Questions \u2013 Additional Formats',
+        dimensions: buildNonStandardQuestionDimensions(dataSet),
+        descriptionText: 'The following questions used alternative response formats as indicated.',
+        showRatingScale: false
+      }, container, { pageNumber: slideNumber++ });
+    } catch (err) {
+      console.error('Additional format questions slide failed:', err);
+      showToast('Additional format questions could not be generated: ' + err.message, 'error');
     }
 
     // 5. Bar Chart – main engagement categories (N-series)

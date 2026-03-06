@@ -36,12 +36,13 @@ class QuestionsSlide extends SlideBase {
         const points = (theme && theme.ratingScale && theme.ratingScale.points) || 5;
         const description = document.createElement('p');
         description.className = 'questions-description';
-        description.textContent = `Statements with subsequent agreement factors that made use of a ${points} point scale, which formed the base for the engagement index (%).`;
+        description.textContent = this.data.descriptionText ||
+            `Statements with subsequent agreement factors that made use of a ${points} point scale, which formed the base for the engagement index (%).`;
         body.appendChild(description);
-        
-        // Rating scale table
-        const ratingScale = this.createRatingScaleTable();
-        body.appendChild(ratingScale);
+
+        if (this.data.showRatingScale !== false) {
+            body.appendChild(this.createRatingScaleTable());
+        }
         
         // Questions table - add compact class for pages 2 & 3 to prevent overflow
         const questionsTable = this.createQuestionsTable();

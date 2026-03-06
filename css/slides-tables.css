@@ -1057,6 +1057,10 @@ table thead th {
   font-weight: 600;
 }
 
+.enps-breakdown-table td:first-child {
+  text-align: left;
+}
+
 .enps-breakdown-table .enps-overall-row th,
 .enps-breakdown-table .enps-overall-row td {
   background-color: var(--secondary-color, #fa6401);
@@ -1072,6 +1076,7 @@ table thead th {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
+  text-align: left;
 }
 
 .enps-key-table thead th {
@@ -1084,6 +1089,7 @@ table thead th {
   padding: 0.35rem 0.5rem;
   border: 1px solid var(--border-color);
   vertical-align: top;
+  text-align: left;
 }
 
 .enps-key-label {
